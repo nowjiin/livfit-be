@@ -38,6 +38,10 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+tasks.named('compileJava') {
+	dependsOn 'spotlessApply'
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
