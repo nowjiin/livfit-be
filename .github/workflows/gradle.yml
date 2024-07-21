@@ -52,7 +52,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            docker pull nowjin/livfit:latest
-            docker stop livfit || true
-            docker rm livfit || true
-            docker run -d -p 8080:8080 --name livfit nowjin/livfit:latest
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/livfit:latest
+            sudo docker stop livfit || true
+            sudo docker rm livfit || true
+            sudo docker run -d -p 8080:8080 --name livfit ${{ secrets.DOCKERHUB_USERNAME }}/livfit:latest
