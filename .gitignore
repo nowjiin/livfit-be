@@ -37,6 +37,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-## git Action
-.github/workflows/gradle.yml

@@ -10,44 +10,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up JDK 17
-        uses: actions/checkout@v1
+      - name: ☕ JDK 17로 설정
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with Gradle
+      - name: 🐘 gradlew 실행 권한 부여
+        run: chmod +x gradlew
+
+      - name: 🐘 Build with Gradle
         run: ./gradlew build
 
-      - name: Build Docker image
-        run : docker build -t nowjin/livfit:latest .
+      - name: 🐋Docker Hub 로그인
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: Log in to Docker HUB
-        env :
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run :
-          echo $DOCKER_PASSWORD | docker login -u DOCKER_USERNAME --password-stdin
+      - name: 🐋Docker 이미지 빌드
+        run: docker build -t nowjin/livfit:latest .
 
-      - name: push Docker image
+      - name: 🐋Docker hub에 Docker image 푸쉬
         run: docker push nowjin/livfit:latest
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-
     steps:
-      - name: SSH to Server
-        uses: appleboy/ssh-action@master
+      - name: 🚀서버에 Deploy하기
+        uses: appleboy/ssh-action@v0.1.4
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            docker pull your-dockerhub-username/your-app-name
-            docker stop your-container-name || true
-            docker rm your-container-name || true
-            docker run -d -p 8080:8080 --name your-container-name your-dockerhub-username/your-app-name
+            docker pull nowjin/livfit:latest
+            docker stop livfit || true
+            docker rm livfit || true
+            docker run -d -p 8080:8080 --name livfit nowjin/livfit:latest

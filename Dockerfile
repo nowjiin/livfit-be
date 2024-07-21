@@ -12,7 +12,3 @@ COPY ${JAR_FILE} app.jar
 
 # 컨테이너가 시작될 때 실행할 명령어 설정
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
-# 컨테이너의 상태 체크
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
