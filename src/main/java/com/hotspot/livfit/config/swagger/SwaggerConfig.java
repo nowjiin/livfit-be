@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.info.Info;
 
 // 스웨거 접속 주소
 // http://localhost:8080/swagger-ui.index.html
+// https://nowjin.tplinkdns.com/swagger-ui.index.html
 
 @Configuration
 public class SwaggerConfig {
