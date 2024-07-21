@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class LivfitApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(LivfitApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(LivfitApplication.class, args);
+  }
 }
