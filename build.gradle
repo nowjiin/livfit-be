@@ -19,7 +19,19 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+	//웹 스타터
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	//서버렛
+	implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+
+	//jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
 	//swagger 설정 openapi-ui
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
