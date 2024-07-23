@@ -1,7 +1,11 @@
 name: CI/CD with Gradle and Docker
 
 on:
-  pull_request:
+  push:
+    branches:
+      - main
+  pull_request_target:
+    types: [ closed ]
     branches:
       - main
 
