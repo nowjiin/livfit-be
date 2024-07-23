@@ -20,15 +20,18 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-
+	//spring security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	//jwt
+	implementation group:'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+	implementation group:'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+	implementation group:'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 	//swagger 설정 openapi-ui
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.5.0'
-
 	//db설정
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
 	//lombok
 	annotationProcessor 'org.projectlombok:lombok'
 	compileOnly 'org.projectlombok:lombok'
