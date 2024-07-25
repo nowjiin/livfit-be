@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BadgeRequestDTO {
-  private Long userId;
-  private String badgeId;
-  private boolean conditionCheck;
+  private String loginId; // 로그인 아이디
+  private String badgeId; // 뱃지 ID
+  private boolean conditionCheck; // 조건 확인 여부
 }

@@ -15,6 +15,7 @@ import com.hotspot.livfit.badge.entity.UserBadge;
 import com.hotspot.livfit.badge.service.UserBadgeService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,8 +36,8 @@ public class BadgeController {
    * HTTP Body: BadgeRequestDTO 객체 (JSON 형식)
    * 요청 JSON 형식:
    * {
-   *   "userId": 1, // users의 PK 참조
-   *   "badgeId": "T",
+   *   "userId": "hyuneun", // users의 login_id 참조
+   *   "badgeId": "test_badge",
    *   "conditionCheck": true
    * }
    */
@@ -57,18 +58,19 @@ public class BadgeController {
       // 토큰확인 추가
       // Bearer 토큰에서 JWT 추출
       String token = bearerToken.substring(7);
-      // JWT에서 사용자 ID 추출
-      String userId = jwtUtil.extractUsername(token);
+      // JWT
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      // 토큰의 정보 중에서 로그인 아이디만 추출
+      String extractedLoginId = claims.getId(); // 로그인 아이디
 
-      // userId와 badgeRequestDTO의 userId가 일치하는지 확인
-      if (!userId.equals(badgeRequestDTO.getUserId().toString())) {
+      // 추출한 로그인 아이디와 / 로그인 아이디가 일치하는지 확인
+      if (!extractedLoginId.equals(badgeRequestDTO.getLoginId())) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body("User ID does not match with the token");
+            .body("Login ID does not match with the token");
       }
-
       boolean success =
-          userBadgeService.checkandAwardBadge( // checkNaward -> checkandAward로 변경
-              badgeRequestDTO.getUserId(),
+          userBadgeService.checkandAwardBadge(
+              badgeRequestDTO.getLoginId(),
               badgeRequestDTO.getBadgeId(),
               badgeRequestDTO.isConditionCheck());
 
@@ -85,7 +87,7 @@ public class BadgeController {
     }
   }
 
-  //조회 로직 추가
+  // 조회 로직 추가
   @Operation(summary = "사용자의 모든 뱃지 가져오기", description = "특정 사용자의 모든 뱃지 가져오기")
   @ApiResponses(
       value = {
@@ -93,27 +95,22 @@ public class BadgeController {
         @ApiResponse(responseCode = "400", description = "잘못된 요청"),
         @ApiResponse(responseCode = "500", description = "서버 에러")
       })
-  @GetMapping("/{userId}")
-  public ResponseEntity<?> getUserBadges(
-      @RequestHeader("Authorization") String bearerToken, @PathVariable Long userId) {
+  @GetMapping("/mybadge")
+  public ResponseEntity<?> getUserBadges(@RequestHeader("Authorization") String bearerToken) {
     try {
       // Bearer 토큰에서 JWT 추출
       String token = bearerToken.substring(7);
-      // JWT에서 사용자 ID 추출
-      String jwtUserId = jwtUtil.extractUsername(token);
+      // 모든 클레임 추출
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 뱃지 가져오기
+      String jwtLoginId = claims.getId();
 
-      // 요청된 userId와 JWT에서 추출한 userId가 일치하는지 확인
-      if (!jwtUserId.equals(userId.toString())) {
-        return ResponseEntity.badRequest().body("User ID does not match with the token");
-      }
-
-      // userId로 사용자 뱃지 조회
-      List<UserBadge> userBadges = userBadgeService.getUserBadges(userId);
+      // 로그인 아이디로 사용자 뱃지 조회
+      List<UserBadge> userBadges = userBadgeService.getUserBadges(jwtLoginId);
       return ResponseEntity.ok(userBadges);
     } catch (RuntimeException e) {
       log.error(
-          "Error during fetching user badges in controller /api/userbadges/{userId}: {}",
-          e.getMessage());
+          "Error during fetching user badges in controller /api/userbadges: {}", e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
