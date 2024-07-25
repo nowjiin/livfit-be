@@ -2,7 +2,6 @@ package com.hotspot.livfit.exercise.service;
 
 import java.util.List;
 
-import com.hotspot.livfit.exercise.repository.LungeRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.hotspot.livfit.exercise.entity.Lunge;
 import com.hotspot.livfit.exercise.entity.Pushup;
 import com.hotspot.livfit.exercise.entity.Squat;
+import com.hotspot.livfit.exercise.repository.LungeRepository;
 import com.hotspot.livfit.exercise.repository.PushupRepository;
 import com.hotspot.livfit.exercise.repository.SquatRepository;
 import com.hotspot.livfit.user.util.JwtUtil;

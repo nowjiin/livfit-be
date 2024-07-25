@@ -2,14 +2,16 @@ package com.hotspot.livfit.exercise.controller;
 
 import java.util.List;
 
-import com.hotspot.livfit.exercise.dto.Record;
-import com.hotspot.livfit.exercise.entity.Lunge;
-import com.hotspot.livfit.exercise.service.ExerciseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.hotspot.livfit.exercise.dto.Record;
+import com.hotspot.livfit.exercise.entity.Lunge;
+import com.hotspot.livfit.exercise.service.ExerciseService;
+import com.hotspot.livfit.user.util.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,9 +23,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @Slf4j
 public class LungeController {
   private final ExerciseService exerciseService;
+  private final JwtUtil jwtUtil;
+
   // 런지 기록 저장 엔드포인트
   /*
-   * URL : /api/lunge/record
+   *   URL : /api/lunge/record
    * HTTP Method: POST
    * 요청 JSON 형식 :
    * {
@@ -44,12 +48,16 @@ public class LungeController {
         @ApiResponse(responseCode = "500", description = "서버 에러.")
       })
   @PostMapping("/record")
-  public ResponseEntity<?> saveRecord(@RequestBody Record record) {
+  public ResponseEntity<?> saveRecord(
+      @RequestHeader("Authorization") String bearerToken, @RequestBody Record record) {
     try {
+      String token = bearerToken.substring(7); // "Bearer " 부분 제거
+      // JWT에서 사용자 ID 추출
+      String userId = jwtUtil.extractUsername(token);
       Lunge lunge =
           exerciseService.saveRecordLunge(
-              record.getToken(),
-              record.getUsername(),
+              token,
+              userId,
               record.getTimer_sec(),
               record.getCount(),
               record.getPerfect(),

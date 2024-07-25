@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.hotspot.livfit.exercise.dto.Record;
 import com.hotspot.livfit.exercise.entity.Pushup;
 import com.hotspot.livfit.exercise.service.ExerciseService;
+import com.hotspot.livfit.user.util.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,14 +23,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @Slf4j
 public class PushupController {
   private final ExerciseService exerciseService;
+  private final JwtUtil jwtUtil;
+
   // 푸쉬업 기록 저장 엔드포인트
   /*
    * URL : /api/pushup/record
    * HTTP Method: POST
    * 요청 JSON 형식 :
    * {
-   *   "username" : "test1",
-   *   "token" : "??????",
    *   "timer_sec" : "60",
    *   "count" : "15",
    *   "perfect" : "5",
@@ -45,12 +46,16 @@ public class PushupController {
         @ApiResponse(responseCode = "500", description = "서버 에러.")
       })
   @PostMapping("/record")
-  public ResponseEntity<?> saveRecord(@RequestBody Record record) {
+  public ResponseEntity<?> saveRecord(
+      @RequestHeader("Authorization") String bearerToken, @RequestBody Record record) {
     try {
+      String token = bearerToken.substring(7); // "Bearer " 부분 제거
+      // JWT에서 사용자 ID 추출
+      String userId = jwtUtil.extractUsername(token);
       Pushup pushup =
           exerciseService.saveRecordPushup(
-              record.getToken(),
-              record.getUsername(),
+              token,
+              userId,
               record.getTimer_sec(),
               record.getCount(),
               record.getPerfect(),
