@@ -1,4 +1,4 @@
-package com.hotspot.livfit.exercise.entity.entity;
+package com.hotspot.livfit.exercise.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
