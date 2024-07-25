@@ -1,6 +1,7 @@
 package com.hotspot.livfit.badge.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,17 +20,18 @@ import com.hotspot.livfit.user.repository.UserRepository;
 @RequiredArgsConstructor // 생성자 자동 생성, 필요한 필드 주입? 역할
 public class UserBadgeService {
 
-  private final UserRepository UserRepository;
-  private final BadgeRepository BadgeRepository;
   private final UserBadgeRepository userBadgeRepository;
   private final UserRepository userRepository;
   private final BadgeRepository badgeRepository;
 
-  // id로 유저 엔티티 조회
+  // login id로 유저 엔티티 조회
   @Transactional
-  public boolean checkNawardBadge(Long userId, String badgeId, boolean conditionCheck) {
+  public boolean checkandAwardBadge(
+      String loginId, String badgeId, boolean conditionCheck) { // checkNaward -> checkandAward로 변경
     User user =
-        userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
     Badge badge =
         badgeRepository
@@ -52,5 +54,10 @@ public class UserBadgeService {
     userBadge.setBadge(badge);
     userBadge.setEarnedTime(LocalDateTime.now());
     userBadgeRepository.save(userBadge);
+  }
+
+  // 특정 사용자의 뱃지를 조회
+  public List<UserBadge> getUserBadges(String loginId) {
+    return userBadgeRepository.findByLoginId(loginId);
   }
 }
