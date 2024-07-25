@@ -27,18 +27,17 @@ public class SquatController {
 
   // 스쿼트 기록 저장 엔드포인트
   /*
-  * URL : /api/squat/record
-  * HTTP Method: POST
-  * 요청 JSON 형식 :
-  * {
-
-  *   "timer_sec" : "60",
-  *   "count" : "15",
-  *   "perfect" : "5",
-  *   "great" : "5",
-  *   "good" : "5"
-  * }
-  * */
+   * URL : /api/squat/{user_id}/record
+   * HTTP Method: POST
+   * 요청 JSON 형식 :
+   * {
+   *   "timer_sec" : "60",
+   *   "count" : "15",
+   *   "perfect" : "5",
+   *   "great" : "5",
+   *   "good" : "5"
+   * }
+   * */
   @Operation(summary = "기록저장", description = "푸쉬업 기록 저장")
   @ApiResponses(
       value = {
@@ -46,7 +45,7 @@ public class SquatController {
         @ApiResponse(responseCode = "400", description = "잘못된 요청."),
         @ApiResponse(responseCode = "500", description = "서버 에러.")
       })
-  @PostMapping("/record")
+  @PostMapping("/{user_id}/record")
   public ResponseEntity<?> saveRecord(
       @RequestHeader("Authorization") String bearerToken, @RequestBody Record record) {
     try {
@@ -55,8 +54,6 @@ public class SquatController {
       String userId = jwtUtil.extractUsername(token);
       Squat squat =
           exerciseService.saveRecordSquat(
-              token,
-              userId,
               record.getTimer_sec(),
               record.getCount(),
               record.getPerfect(),
@@ -66,14 +63,15 @@ public class SquatController {
 
     } catch (RuntimeException e) {
       log.error(
-          "Error during saving squat record in controller /api/squat/record: {}", e.getMessage());
+          "Error during saving squat record in controller /api/squat/{user_id}/record: {}",
+          e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
 
   // 스쿼트 기록 가져오는 엔드포인트
   /*
-   * URL : /api/squat/all
+   * URL : /api/squat/{user_id}/all
    * HTTP Method: GET
    * */
   @Operation(summary = "기록 가져오기", description = "스쿼트 기록 조회")
@@ -83,14 +81,15 @@ public class SquatController {
         @ApiResponse(responseCode = "400", description = "잘못된 요청."),
         @ApiResponse(responseCode = "500", description = "서버 에러.")
       })
-  @GetMapping("/all")
-  public ResponseEntity<List<Squat>> getAllRecords() {
+  @GetMapping("/{user_id}/all")
+  public ResponseEntity<List<Squat>> getAllRecords(Long userId) {
     try {
-      List<Squat> squats = exerciseService.getAllSquat();
+      List<Squat> squats = exerciseService.getAllSquat(userId);
       return ResponseEntity.ok(squats);
     } catch (RuntimeException e) {
       log.error(
-          "Error during fetching pushup records in controller /squat/all: {}", e.getMessage());
+          "Error during fetching pushup records in controller /squat/{user_id}/all: {}",
+          e.getMessage());
       return ResponseEntity.status(500).body(null);
     }
   }

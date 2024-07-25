@@ -27,7 +27,7 @@ public class PushupController {
 
   // 푸쉬업 기록 저장 엔드포인트
   /*
-   * URL : /api/pushup/record
+   * URL : /api/pushup/{user_id}/record
    * HTTP Method: POST
    * 요청 JSON 형식 :
    * {
@@ -45,7 +45,7 @@ public class PushupController {
         @ApiResponse(responseCode = "400", description = "잘못된 요청."),
         @ApiResponse(responseCode = "500", description = "서버 에러.")
       })
-  @PostMapping("/record")
+  @PostMapping("/{user_id}/record")
   public ResponseEntity<?> saveRecord(
       @RequestHeader("Authorization") String bearerToken, @RequestBody Record record) {
     try {
@@ -54,8 +54,6 @@ public class PushupController {
       String userId = jwtUtil.extractUsername(token);
       Pushup pushup =
           exerciseService.saveRecordPushup(
-              token,
-              userId,
               record.getTimer_sec(),
               record.getCount(),
               record.getPerfect(),
@@ -65,14 +63,15 @@ public class PushupController {
 
     } catch (RuntimeException e) {
       log.error(
-          "Error during saving Pushup record in controller /api/pushup/record: {}", e.getMessage());
+          "Error during saving Pushup record in controller /api/{user_id}/pushup/record: {}",
+          e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
 
   // 푸쉬업 기록 가져오는 엔드포인트
   /*
-   * URL : /api/pushup/all
+   * URL : /api/pushup/{user_id}/all
    * HTTP Method: GET
    * */
   @Operation(summary = "기록 가져오기", description = "푸쉬업 기록 조회")
@@ -82,14 +81,15 @@ public class PushupController {
         @ApiResponse(responseCode = "400", description = "잘못된 요청."),
         @ApiResponse(responseCode = "500", description = "서버 에러.")
       })
-  @GetMapping("/all")
-  public ResponseEntity<List<Pushup>> getAllRecords() {
+  @GetMapping("/{user_id}/all")
+  public ResponseEntity<List<Pushup>> getAllRecords(Long user_id) {
     try {
-      List<Pushup> pushups = exerciseService.getAllPushup();
+      List<Pushup> pushups = exerciseService.getAllPushup(user_id);
       return ResponseEntity.ok(pushups);
     } catch (RuntimeException e) {
       log.error(
-          "Error during fetching pushup records in controller /pushup/all: {}", e.getMessage());
+          "Error during fetching pushup records in controller /pushup/{user_id}/all: {}",
+          e.getMessage());
       return ResponseEntity.status(500).body(null);
     }
   }
