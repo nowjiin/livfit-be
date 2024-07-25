@@ -1,4 +1,4 @@
-package com.hotspot.livfit.exercise.entity.dto;
+package com.hotspot.livfit.exercise.dto;
 
 import lombok.Getter;
 import lombok.Setter;

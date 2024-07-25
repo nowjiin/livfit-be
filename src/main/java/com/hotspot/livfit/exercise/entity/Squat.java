@@ -1,4 +1,4 @@
-package com.hotspot.livfit.exercise.entity.entity;
+package com.hotspot.livfit.exercise.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,12 +7,12 @@ import lombok.Setter;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "lunge")
+@Table(name = "squat")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Lunge {
-  // pk 런지 아이디
+public class Squat {
+  // pk 스쿼트 아이디
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
