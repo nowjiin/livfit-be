@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
-@RequestMapping("/squat")
+@RequestMapping("/api/squat") // 엔드포인트에 "/api" 추가
 @RequiredArgsConstructor
 @Slf4j
 public class SquatController {
