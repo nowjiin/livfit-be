@@ -6,16 +6,23 @@ import lombok.Setter;
 
 import jakarta.persistence.*;
 
+import com.hotspot.livfit.user.entity.User;
+
 @Entity
 @Table(name = "squat")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Squat {
-  // pk 스쿼트 아이디
+  // pk
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
+
+  // 한명의 사용자가 여러 기록 가지고 있으니
+  @ManyToOne
+  @JoinColumn(name = "user_id", referencedColumnName = "id")
+  private User user;
 
   // 시간 초
   @Column(name = "timer_sec")
