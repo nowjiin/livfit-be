@@ -12,6 +12,5 @@ public class Record {
   private int perfect;
   private int great;
   private int good;
-  private String token;
-  private String username;
+  private String loginId;
 }
