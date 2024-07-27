@@ -5,8 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
@@ -27,7 +30,21 @@ public class SwaggerConfig {
     return new OpenAPI()
         .addServersItem(localServer)
         .addServersItem(prodServer)
-        .info(new Info().title("livfit API").version("1.0").description("livfit API description"));
+        .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    "bearerAuth",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")))
+        .info(
+            new Info()
+                .title("livfit API")
+                .version("1.0")
+                .description(
+                    "API Test용 ID : test_dev Token : eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ0ZXN0X2RldiIsImlhdCI6MTcyMjAwOTE5OCwiZXhwIjoxNzIyNjEzOTk4fQ.oxRUEWz4OlOodRVdjGGSy2AQlFwptj_zyYI2VBfwd1o"));
   }
 
   @Bean

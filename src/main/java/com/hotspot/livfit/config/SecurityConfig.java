@@ -48,7 +48,14 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/api/users/register",
                         "/api/users/login",
-                        "/api/userbadges/**")
+                        "/api/userbadges/**",
+                        "/api/lunge/save_record/**",
+                        "/api/lunge/get_my_record/**",
+                        "/api/pushup/save_record/**",
+                        "/api/pushup/get_my_record/**",
+                        "/api/squat/save_record/**",
+                        "/api/squat/get_my_record/**",
+                        "/api/points/**")
                     .permitAll()
                     .requestMatchers("/api/v1/user/*")
                     .hasRole("USER")
