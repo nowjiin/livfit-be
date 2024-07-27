@@ -12,6 +12,8 @@ import com.hotspot.livfit.exercise.entity.Squat;
 import com.hotspot.livfit.exercise.repository.LungeRepository;
 import com.hotspot.livfit.exercise.repository.PushupRepository;
 import com.hotspot.livfit.exercise.repository.SquatRepository;
+import com.hotspot.livfit.user.entity.User;
+import com.hotspot.livfit.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -19,11 +21,18 @@ public class ExerciseService {
   private final LungeRepository lungeRepository;
   private final PushupRepository pushupRepository;
   private final SquatRepository squatRepository;
+  private final UserRepository userRepository;
 
   // 런지 기록 저장 로직
-  public Lunge saveRecordLunge(Long timerSec, int count, int perfect, int good, int great) {
-    // 런지 기록 DB에 저장
+  public Lunge saveRecordLunge(
+      String loginId, Long timerSec, int count, int perfect, int good, int great) {
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
     Lunge lunge = new Lunge();
+    lunge.setUser(user);
     lunge.setTimer_sec(timerSec);
     lunge.setCount(count);
     lunge.setPerfect(perfect);
@@ -32,15 +41,21 @@ public class ExerciseService {
     return lungeRepository.save(lunge);
   }
 
-  // 아이디로 런지 기록 전체 조회
-  public List<Lunge> getAllLunge(Long userId) {
-    return lungeRepository.findByUserId(userId);
+  // 특정 사용자의 모든 런지 기록 가져오기
+  public List<Lunge> getAllLungeByLoginId(String loginId) {
+    return lungeRepository.findByLoginId(loginId);
   }
 
   // 푸쉬업 기록 저장 로직
-  public Pushup saveRecordPushup(Long timerSec, int count, int perfect, int good, int great) {
-    // 푸쉬업 기록 DB에 저장
+  public Pushup saveRecordPushup(
+      String loginId, Long timerSec, int count, int perfect, int good, int great) {
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
     Pushup pushup = new Pushup();
+    pushup.setUser(user);
     pushup.setTimer_sec(timerSec);
     pushup.setCount(count);
     pushup.setPerfect(perfect);
@@ -49,15 +64,21 @@ public class ExerciseService {
     return pushupRepository.save(pushup);
   }
 
-  // 회원의 푸쉬업 기록 조회
-  public List<Pushup> getAllPushup(Long userId) {
-    return pushupRepository.findByUserId(userId);
+  // 특정 사용자의 모든 푸쉬업 기록 가져오기
+  public List<Pushup> getAllPushupByLoginId(String loginId) {
+    return pushupRepository.findByLoginId(loginId);
   }
 
   // 스쿼트 기록 저장 로직
-  public Squat saveRecordSquat(Long timerSec, int count, int perfect, int good, int great) {
-    // 스쿼트 기록 DB에 저장
+  public Squat saveRecordSquat(
+      String loginId, Long timerSec, int count, int perfect, int good, int great) {
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
     Squat squat = new Squat();
+    squat.setUser(user);
     squat.setTimer_sec(timerSec);
     squat.setCount(count);
     squat.setPerfect(perfect);
@@ -66,7 +87,8 @@ public class ExerciseService {
     return squatRepository.save(squat);
   }
 
-  public List<Squat> getAllSquat(Long userId) {
-    return squatRepository.findByUserId(userId);
+  // 특정 사용자의 모든 스쿼트 기록 가져오기
+  public List<Squat> getAllSquatByLoginId(String loginId) {
+    return squatRepository.findByLoginId(loginId);
   }
 }
