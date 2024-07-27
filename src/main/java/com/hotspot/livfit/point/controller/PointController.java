@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hotspot.livfit.point.dto.PointHistoryDTO;
 import com.hotspot.livfit.point.dto.PointRequestDTO;
-import com.hotspot.livfit.point.entity.PointHistory;
 import com.hotspot.livfit.point.service.PointService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
@@ -64,7 +64,7 @@ public class PointController {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       String loginId = claims.getId();
       // 포인트 히스토리 조회
-      List<PointHistory> history = pointService.getPointHistory(loginId);
+      List<PointHistoryDTO> history = pointService.getPointHistory(loginId);
       return ResponseEntity.ok(history);
     } catch (RuntimeException e) {
       log.error(
