@@ -16,6 +16,7 @@ import com.hotspot.livfit.exercise.repository.LungeRepository;
 import com.hotspot.livfit.exercise.repository.PushupRepository;
 import com.hotspot.livfit.exercise.repository.SquatRepository;
 import com.hotspot.livfit.mypage.dto.MyPageResponseDTO;
+import com.hotspot.livfit.point.entity.PointHistory;
 import com.hotspot.livfit.point.repository.PointHistoryRepository;
 import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
@@ -38,11 +39,15 @@ public class MyPageService {
             .findByLoginId(loginId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-    // 여기 뱃지 로직 수정 후 다시 변경해야할 듯
-    int totalPoints =
-        pointHistoryRepository.findByUser_LoginId(loginId).stream()
-            .mapToInt(pointHistory -> pointHistory.getTotalPoints())
-            .sum();
+    // 그냥 누적 포인트 조회하는 로직을 어떻게 짜야할지 모르겠어서
+    // 초기 누적 포인트를 0으로 설정하고
+    int totalPoints = 0;
+    // 특정 사용자 ID의 누적 포인트 히스토리 조회하고
+    List<PointHistory> history = pointHistoryRepository.findByUser_LoginId(loginId);
+    // 히스토리가 비어있지 않다면, 마지막 히스토리의 totalPoints 값을 가져오도록 짰습니다
+    if (!history.isEmpty()) {
+      totalPoints = history.get(history.size() - 1).getTotalPoints();
+    }
 
     List<Lunge> lunges = lungeRepository.findByLoginId(loginId);
     List<Pushup> pushups = pushupRepository.findByLoginId(loginId);
