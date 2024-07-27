@@ -72,26 +72,4 @@ public class PointController {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
-
-  @Operation(summary = "누적 포인트 조회", description = "사용자의 누적 포인트를 조회")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "누적 포인트 조회 성공"),
-    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-    @ApiResponse(responseCode = "500", description = "서버 에러")
-  })
-  @GetMapping("/total")
-  public ResponseEntity<?> getTotalPoints(@RequestHeader("Authorization") String bearerToken) {
-    try {
-      String token = bearerToken.substring(7);
-      Claims claims = jwtUtil.getAllClaimsFromToken(token);
-      String loginId = claims.getId();
-      // 누적 포인트 조회
-      int totalPoints = pointService.getTotalPoints(loginId);
-      return ResponseEntity.ok(totalPoints);
-    } catch (RuntimeException e) {
-      log.error(
-          "Error during fetching total points in controller /api/points/total: {}", e.getMessage());
-      return ResponseEntity.badRequest().body(e.getMessage());
-    }
-  }
 }
