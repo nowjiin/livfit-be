@@ -29,20 +29,20 @@ public class SquatController {
 
   // 스쿼트 기록 저장
   /*
-   * URL: /api/squat/save_record
-   * HTTP Method: POST
-   * HTTP Body: record (JSON 형식)
-   * 요청 JSON 형식:
-   * {
-   *   "login_id": "test_dev", // users의 login_id 참조
-   *   "timerSec": "60",
-   *   "count": "15",
-   *   "perfect": "5",
-   *    "great": "5",
-   *    "good": "5",
+  * URL: /api/squat/save_record
+  * HTTP Method: POST
+  * HTTP Body: record (JSON 형식)
+  * 요청 JSON 형식:
+  * {
+  *   "login_id": "test_dev", // users의 login_id 참조
+  *   "timerSec": "60",
+  *   "count": "15",
+  *   "perfect": "5",
+  *    "great": "5",
+  *    "good": "5",
 
-   * }
-   */
+  * }
+  */
 
   @Operation(summary = "기록저장", description = "스쿼트 기록 저장")
   @ApiResponses({
@@ -98,7 +98,7 @@ public class SquatController {
     }
   }
 
-// 스쿼트 기록 가져오기
+  // 스쿼트 기록 가져오기
   /*
    * URL: /api/squat/get_my_record
    * HTTP Method: GET

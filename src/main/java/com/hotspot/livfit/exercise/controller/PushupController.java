@@ -29,20 +29,20 @@ public class PushupController {
 
   // 푸쉬업 기록 저장
   /*
-   * URL: /api/pushup/save_record
-   * HTTP Method: POST
-   * HTTP Body: record (JSON 형식)
-   * 요청 JSON 형식:
-   * {
-   *   "login_id": "test_dev", // users의 login_id 참조
-   *   "timerSec": "60",
-   *   "count": "15",
-   *   "perfect": "5",
-   *    "great": "5",
-   *    "good": "5",
+  * URL: /api/pushup/save_record
+  * HTTP Method: POST
+  * HTTP Body: record (JSON 형식)
+  * 요청 JSON 형식:
+  * {
+  *   "login_id": "test_dev", // users의 login_id 참조
+  *   "timerSec": "60",
+  *   "count": "15",
+  *   "perfect": "5",
+  *    "great": "5",
+  *    "good": "5",
 
-   * }
-   */
+  * }
+  */
 
   @Operation(summary = "기록저장", description = "푸쉬업 기록 저장")
   @ApiResponses({
