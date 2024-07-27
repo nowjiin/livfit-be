@@ -55,7 +55,9 @@ public class SecurityConfig {
                         "/api/pushup/get_my_record/**",
                         "/api/squat/save_record/**",
                         "/api/squat/get_my_record/**",
-                        "/api/points/**")
+                        "/api/points/**",
+                        "/api/challenge/show/**",
+                        "/api/today_exercise/show/**")
                     .permitAll()
                     .requestMatchers("/api/v1/user/*")
                     .hasRole("USER")
