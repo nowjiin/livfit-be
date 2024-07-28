@@ -60,4 +60,25 @@ public class PointController {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
+
+  @Operation(summary = "운동 완료 시 포인트 적립", description = "사용자가 운동을 완료했을 때 포인트를 적립")
+  @PostMapping("/earn-points")
+  public ResponseEntity<?> earnPoints(@RequestHeader("Authorization") String bearerToken) {
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String loginId = claims.getId(); // 로그인 아이디
+      // 포인트 적립
+      PointRequestDTO pointRequestDTO = new PointRequestDTO();
+      pointRequestDTO.setPoints(300); // 임의로 300포인트 준다고 가정
+      pointRequestDTO.setType("earn");
+      pointRequestDTO.setDescription("운동 완료");
+      pointService.updatePoints(loginId, pointRequestDTO);
+      return ResponseEntity.ok("Points earned successfully");
+    } catch (RuntimeException e) {
+      log.error(
+          "Error during earning points in controller /api/points/earn-points: {}", e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
 }
