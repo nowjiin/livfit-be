@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @RequestMapping("/api/challenge")
 @RequiredArgsConstructor
 @Slf4j
-public class ChallengeContorller {
+public class ChallengeController {
 
   private final ChallengeService challengeService;
   /*

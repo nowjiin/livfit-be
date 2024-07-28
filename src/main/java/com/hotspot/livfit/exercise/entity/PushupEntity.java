@@ -9,11 +9,11 @@ import jakarta.persistence.*;
 import com.hotspot.livfit.user.entity.User;
 
 @Entity
-@Table(name = "squat")
+@Table(name = "pushup")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Squat {
+public class PushupEntity {
   // pk
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

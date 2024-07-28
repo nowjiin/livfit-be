@@ -13,7 +13,7 @@ import com.hotspot.livfit.user.entity.User;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Lunge {
+public class LungeEntity {
   // pk
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
