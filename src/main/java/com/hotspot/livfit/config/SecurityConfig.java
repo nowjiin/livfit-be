@@ -58,7 +58,10 @@ public class SecurityConfig {
                         "/api/points/**",
                         "/api/challenge/show/**",
                         "/api/today_exercise/show/**",
-                        "/api/mypage/**")
+                        "/api/mypage/**",
+                        "/api/squat/graph/**",
+                        "/api/lunge/graph/**",
+                        "/api/pushup/graph/**")
                     .permitAll()
                     .requestMatchers("/api/v1/user/*")
                     .hasRole("USER")

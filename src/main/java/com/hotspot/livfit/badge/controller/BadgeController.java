@@ -18,8 +18,6 @@ import com.hotspot.livfit.user.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/userbadges")
@@ -44,12 +42,6 @@ public class BadgeController {
    */
 
   @Operation(summary = "뱃지 조건 확인 및 부여", description = "사용자가 특정 뱃지 조건을 만족하면 뱃지를 부여")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "뱃지 부여 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-        @ApiResponse(responseCode = "500", description = "서버 에러")
-      })
   @PostMapping("/check-award")
   public ResponseEntity<?> checkandAward( // checkNaward -> checkandAward로 변경
       @RequestHeader("Authorization") String bearerToken,
@@ -82,12 +74,6 @@ public class BadgeController {
 
   // 조회 로직 추가
   @Operation(summary = "사용자의 모든 뱃지 가져오기", description = "특정 사용자의 모든 뱃지 가져오기")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "뱃지 가져오기 성공"),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-        @ApiResponse(responseCode = "500", description = "서버 에러")
-      })
   @GetMapping("/mybadge")
   public ResponseEntity<?> getUserBadges(@RequestHeader("Authorization") String bearerToken) {
     try {
