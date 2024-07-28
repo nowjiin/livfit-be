@@ -1,10 +1,14 @@
 package com.hotspot.livfit.exercise.entity;
 
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.hotspot.livfit.user.entity.User;
 
@@ -43,4 +47,13 @@ public class SquatEntity {
   // good
   @Column(name = "good")
   private int good;
+
+  // 그래프를 위해 시간 추가
+  @Column(name = "created_at", updatable = false)
+  @CreationTimestamp
+  private LocalDateTime created_at;
+
+  // 그래프의 결과값 저장
+  @Column(name = "graph")
+  private Double graph;
 }

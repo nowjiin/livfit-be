@@ -10,15 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.hotspot.livfit.exercise.dto.RecordDTO;
+import com.hotspot.livfit.exercise.dto.SquatGraphDTO;
 import com.hotspot.livfit.exercise.entity.SquatEntity;
 import com.hotspot.livfit.exercise.service.ExerciseService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/squat")
@@ -45,12 +43,6 @@ public class SquatController {
   * }
   */
 
-  @Operation(summary = "기록저장", description = "스쿼트 기록 저장")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "기록 완료."),
-    @ApiResponse(responseCode = "400", description = "잘못된 요청."),
-    @ApiResponse(responseCode = "500", description = "서버 에러.")
-  })
   @PostMapping("/save_record")
   public ResponseEntity<?> saveSquatRecord(
       @RequestHeader("Authorization") String bearerToken, @RequestBody RecordDTO recordDto) {
@@ -93,24 +85,15 @@ public class SquatController {
    * HTTP Method: GET
    */
 
-  @Operation(summary = "기록 가져오기", description = "스쿼트 기록 조회")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "가져오기 완료."),
-    @ApiResponse(responseCode = "400", description = "잘못된 요청."),
-    @ApiResponse(responseCode = "500", description = "서버 에러.")
-  })
   @GetMapping("/get_my_record")
   public ResponseEntity<?> getRecord(@RequestHeader("Authorization") String bearerToken) {
     try {
       // Bearer 토큰에서 JWT 추출
       String token = bearerToken.substring(7);
-      // System.out.println(token);
       // 모든 클레임 추출
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
-      // System.out.println(claims);
       // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 운동 기록 가져오기
       String jwtLoginId = claims.getId();
-      System.out.println(jwtLoginId);
 
       // 로그인 아이디로 사용자 운동 가져오기
       List<SquatEntity> squatEntities = exerciseService.getAllSquatByLoginId(jwtLoginId);
@@ -118,8 +101,27 @@ public class SquatController {
       return ResponseEntity.ok(squatEntities);
     } catch (RuntimeException e) {
       log.error(
-          "Error during fetching user badges in controller /api/squats/get_my_record: {}",
+          "Error during fetching user squat in controller /api/squats/get_my_record: {}",
           e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @GetMapping("/graph")
+  public ResponseEntity<?> getGraph(@RequestHeader("Authorization") String bearerToken) {
+    try {
+      // Bearer 토큰에서 JWT 추출
+      String token = bearerToken.substring(7);
+      // 모든 클레임 추출
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 운동 기록 가져오기
+      String jwtLoginId = claims.getId();
+
+      List<SquatGraphDTO> squatEntities = exerciseService.getSquatGrpah(jwtLoginId);
+      return ResponseEntity.ok(squatEntities);
+    } catch (RuntimeException e) {
+      log.error(
+          "Error during fetching user squat in controller /api/squats/graph: {}", e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
