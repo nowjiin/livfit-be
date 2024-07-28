@@ -55,6 +55,31 @@ public class UserBadgeService {
     userBadge.setEarnedTime(LocalDateTime.now());
     userBadgeRepository.save(userBadge);
   }
+  // 메인 뱃지 설정 메서드
+  @Transactional
+  public void setMainBadge(String loginId, String badgeId) {
+    // 로그인 ID로 사용자 조회
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    // 이전 메인 뱃지를 모두 해제
+    List<UserBadge> userBadges = userBadgeRepository.findByLoginId(loginId);
+    for (UserBadge userBadge : userBadges) {
+      userBadge.setMainBadge(false);
+    }
+    userBadgeRepository.saveAll(userBadges);
+
+    // 새로운 메인 뱃지 설정
+    UserBadge mainBadge =
+        userBadgeRepository
+            .findByUser_LoginIdAndBadge_Id(loginId, badgeId)
+            .orElseThrow(() -> new RuntimeException("UserBadge not found"));
+
+    mainBadge.setMainBadge(true);
+    userBadgeRepository.save(mainBadge);
+  }
 
   // 특정 사용자의 뱃지를 조회
   public List<UserBadge> getUserBadges(String loginId) {

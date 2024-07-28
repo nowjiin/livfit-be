@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.hotspot.livfit.badge.dto.BadgeRequestDTO;
 import com.hotspot.livfit.badge.dto.BadgeResponseDTO;
+import com.hotspot.livfit.badge.dto.MainBadgeRequestDTO;
 import com.hotspot.livfit.badge.dto.UserBadgeResponseDTO;
 import com.hotspot.livfit.badge.entity.UserBadge;
 import com.hotspot.livfit.badge.service.UserBadgeService;
@@ -104,6 +105,27 @@ public class BadgeController {
     } catch (RuntimeException e) {
       log.error(
           "Error during fetching user badges in controller /api/userbadges: {}", e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @Operation(summary = "메인 뱃지 설정", description = "사용자가 메인 뱃지를 설정")
+  @PostMapping("/set-main-badge")
+  public ResponseEntity<?> setMainBadge(
+      @RequestHeader("Authorization") String bearerToken,
+      @RequestBody MainBadgeRequestDTO mainBadgeRequestDTO) {
+
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String jwtLoginId = claims.getId();
+
+      userBadgeService.setMainBadge(jwtLoginId, mainBadgeRequestDTO.getBadgeId());
+      return ResponseEntity.ok("Main badge set successfully");
+    } catch (RuntimeException e) {
+      log.error(
+          "Error during setting main badge in controller /api/userbadges/set-main-badge: {}",
+          e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }

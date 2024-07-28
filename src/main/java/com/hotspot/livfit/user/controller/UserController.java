@@ -18,10 +18,7 @@ import com.hotspot.livfit.user.dto.UserRegistrationRequest;
 import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.service.UserService;
 import com.hotspot.livfit.user.util.JwtUtil;
-
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/users")
@@ -45,12 +42,6 @@ public class UserController {
    */
 
   @Operation(summary = "회원가입", description = "새로운 사용자를 등록( 회원가입 )")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "회원가입이 완료."),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청."),
-        @ApiResponse(responseCode = "500", description = "서버 에러.")
-      })
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@RequestBody UserRegistrationRequest request) {
     try {
@@ -78,11 +69,6 @@ public class UserController {
    * }
    */
   @Operation(summary = "로그인", description = "사용자가 로그인하고 토큰을 발급받음.")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "로그인 성공. 토큰 발급 완료."),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청")
-      })
   @PostMapping("/login")
   public ResponseEntity<?> loginUser(@RequestBody UserLoginRequest request) {
     try {
@@ -112,12 +98,6 @@ public class UserController {
    * }
    */
   @Operation(summary = "토큰 재발급", description = "refresh token을 검증 후, 새로운 accessToken 발급.")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "accessToken 재발급 성공."),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청."),
-        @ApiResponse(responseCode = "401", description = "refreshToken 이 유효하지 않음.")
-      })
   @PostMapping("/refresh-token")
   public ResponseEntity<?> refreshAuthToken(@RequestBody RefreshTokenRequest request) {
     try {
