@@ -44,7 +44,7 @@ public class SwaggerConfig {
                 .title("livfit API")
                 .version("1.0")
                 .description(
-                    "API Test용 ID : test_dev Token : eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ0ZXN0X2RldiIsImlhdCI6MTcyMjAwOTE5OCwiZXhwIjoxNzIyNjEzOTk4fQ.oxRUEWz4OlOodRVdjGGSy2AQlFwptj_zyYI2VBfwd1o"));
+                    "API Test용 ID : test_dev Token : eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJ0ZXN0X2RldiIsInN1YiI6InRlc3RfZGV2IiwiaWF0IjoxNzIyMTgwMTgzLCJleHAiOjE3MjIxODM3ODN9.emCZJNy-z79_tyziY9vJrc-aKqXVIteJQkjMQAg3_8o"));
   }
 
   @Bean

@@ -1,16 +1,17 @@
 package com.hotspot.livfit.badge.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.hotspot.livfit.badge.dto.BadgeRequestDTO;
 import com.hotspot.livfit.badge.dto.BadgeResponseDTO;
+import com.hotspot.livfit.badge.dto.UserBadgeResponseDTO;
 import com.hotspot.livfit.badge.entity.UserBadge;
 import com.hotspot.livfit.badge.service.UserBadgeService;
 import com.hotspot.livfit.user.util.JwtUtil;
@@ -55,24 +56,16 @@ public class BadgeController {
       @RequestBody BadgeRequestDTO badgeRequestDTO) {
 
     try {
-      // 토큰확인 추가
       // Bearer 토큰에서 JWT 추출
       String token = bearerToken.substring(7);
-      // JWT
+      // JWT에서 로그인 아이디 추출
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
-      // 토큰의 정보 중에서 로그인 아이디만 추출
-      String extractedLoginId = claims.getId(); // 로그인 아이디
+      String loginId = claims.getId();
 
-      // 추출한 로그인 아이디와 / 로그인 아이디가 일치하는지 확인
-      if (!extractedLoginId.equals(badgeRequestDTO.getLoginId())) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body("Login ID does not match with the token");
-      }
+      // 뱃지 조건 확인 및 부여
       boolean success =
           userBadgeService.checkandAwardBadge(
-              badgeRequestDTO.getLoginId(),
-              badgeRequestDTO.getBadgeId(),
-              badgeRequestDTO.isConditionCheck());
+              loginId, badgeRequestDTO.getBadgeId(), badgeRequestDTO.isConditionCheck());
 
       if (success) {
         return ResponseEntity.ok(new BadgeResponseDTO(true, "Badge awarded successfully"));
@@ -107,7 +100,21 @@ public class BadgeController {
 
       // 로그인 아이디로 사용자 뱃지 조회
       List<UserBadge> userBadges = userBadgeService.getUserBadges(jwtLoginId);
-      return ResponseEntity.ok(userBadges);
+
+      List<UserBadgeResponseDTO> badgeResponseDTOS = new ArrayList<>();
+      for (UserBadge userBadge : userBadges) {
+        UserBadgeResponseDTO dto =
+            new UserBadgeResponseDTO(
+                userBadge.getId(),
+                userBadge.getUser().getLoginId(),
+                userBadge.getUser().getNickname(),
+                userBadge.getBadge().getId(),
+                userBadge.getEarnedTime().toString());
+        badgeResponseDTOS.add(dto);
+      }
+
+      return ResponseEntity.ok(badgeResponseDTOS);
+
     } catch (RuntimeException e) {
       log.error(
           "Error during fetching user badges in controller /api/userbadges: {}", e.getMessage());

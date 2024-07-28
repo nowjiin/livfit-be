@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NicknameUpdateRequestDTO {
-  private String loginId;
+  //  private String loginId;
   private String nickname;
 }

@@ -57,7 +57,8 @@ public class SecurityConfig {
                         "/api/squat/get_my_record/**",
                         "/api/points/**",
                         "/api/challenge/show/**",
-                        "/api/today_exercise/show/**")
+                        "/api/today_exercise/show/**",
+                        "/api/mypage/**")
                     .permitAll()
                     .requestMatchers("/api/v1/user/*")
                     .hasRole("USER")

@@ -3,7 +3,6 @@ package com.hotspot.livfit.mypage.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,12 +65,12 @@ public class MyPageController {
 
       // 리퀘스트에서 새로운 닉네임 가져오기
       String newNickname = request.getNickname();
-
-      // 로그인 아이디와 DTO에서 받은 로그인 아이디 일치하는지 확인
-      if (!loginId.equals(request.getLoginId())) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body("Login ID does not match with the token");
-      }
+      //
+      //      // 로그인 아이디와 DTO에서 받은 로그인 아이디 일치하는지 확인
+      //      if (!loginId.equals(request.getLoginId())) {
+      //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+      //            .body("Login ID does not match with the token");
+      //      }
 
       // 닉네임 업데이트
       myPageService.updateNickname(loginId, newNickname);
