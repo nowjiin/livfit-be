@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.hotspot.livfit.turtle.dto.TurtleDTO;
 import com.hotspot.livfit.turtle.entity.TurtleEntity;
-import com.hotspot.livfit.turtle.repository.TurtleRepository;
 import com.hotspot.livfit.turtle.service.TurtleService;
-import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
 import com.hotspot.livfit.user.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -27,7 +25,6 @@ public class TurtleController {
 
   @Autowired private JwtUtil jwtUtil;
   @Autowired private UserRepository userRepository;
-  @Autowired private TurtleRepository turtleRepository;
   @Autowired private TurtleService turtleService;
 
   // 거북목 기록 저장
@@ -43,14 +40,11 @@ public class TurtleController {
   */
 
   @PostMapping("/x/save_turtle_record")
-  public ResponseEntity<?> saveTurtleRecord(
-      @RequestHeader(value = "Authorization", required = false) String bearerToken,
-      @RequestBody TurtleEntity turtleData) {
+  public ResponseEntity<?> saveTurtleRecord(@RequestBody TurtleDTO turtleData) {
 
     String jwtLoginId = null;
 
-    if (jwtLoginId == null
-        && (turtleData.getNickname() == null || turtleData.getNickname().trim().isEmpty())) {
+    if (turtleData.getNickname() == null || turtleData.getNickname().trim().isEmpty()) {
       return ResponseEntity.badRequest().body("A nickname is required for non-logged-in users.");
     }
 
@@ -65,7 +59,6 @@ public class TurtleController {
           .body("An error occurred while saving the record.");
     }
   }
-
   /*
   * URL: /api/turtle/o/save_turtle_record
   * HTTP Method: POST
@@ -78,9 +71,7 @@ public class TurtleController {
   @PostMapping("/o/save_turtle_record")
   public ResponseEntity<?> savesTurtleRecord(
       @RequestHeader(value = "Authorization") String bearerToken,
-      @RequestBody TurtleEntity turtleData) {
-    int score = turtleData.getScore();
-    String nickname = turtleData.getNickname();
+      @RequestBody TurtleDTO turtleData) {
 
     try {
       // Bearer 토큰에서 JWT 추출
@@ -89,12 +80,8 @@ public class TurtleController {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       // 토큰의 정보 중에서 로그인 아이디 추출
       String jwtLoginId = claims.getId();
-      score = turtleData.getScore();
-      User user =
-          userRepository
-              .findByLoginId(jwtLoginId)
-              .orElseThrow(() -> new RuntimeException("User not found with login ID: "));
-      nickname = user.getNickname(); // 로그인된 사용자의 닉네임을 가져옴
+      int score = turtleData.getScore();
+      String nickname = turtleData.getNickname();
 
       try {
         TurtleEntity savedTurtle =
@@ -126,5 +113,4 @@ public class TurtleController {
     }
     return ResponseEntity.ok(records);
   }
-
 }

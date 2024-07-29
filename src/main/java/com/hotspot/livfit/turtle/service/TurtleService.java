@@ -1,7 +1,6 @@
 package com.hotspot.livfit.turtle.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +41,4 @@ public class TurtleService {
   public List<TurtleDTO> findAllRecords() {
     return turtleRepository.findAllRecords();
   }
-
-
 }
