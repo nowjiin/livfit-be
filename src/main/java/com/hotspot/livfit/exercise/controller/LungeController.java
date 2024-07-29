@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hotspot.livfit.exercise.dto.LungeDTO;
 import com.hotspot.livfit.exercise.dto.LungeGraphDTO;
 import com.hotspot.livfit.exercise.dto.RecordDTO;
-import com.hotspot.livfit.exercise.entity.LungeEntity;
 import com.hotspot.livfit.exercise.service.ExerciseService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
@@ -65,7 +65,9 @@ public class LungeController {
           recordDto.getCount(),
           recordDto.getPerfect(),
           recordDto.getGood(),
-          recordDto.getGreat());
+          recordDto.getGreat(),
+          recordDto.getCreated_at(),
+          recordDto.getGraph());
 
       return ResponseEntity.ok().body("lunge record saved successfully.");
     } catch (JwtException e) {
@@ -83,24 +85,24 @@ public class LungeController {
    */
 
   @GetMapping("/get_my_record")
-  public ResponseEntity<List<LungeEntity>> getAllRecords(
-      @RequestHeader("Authorization") String bearerToken) {
+  public ResponseEntity<?> getRecord(@RequestHeader("Authorization") String bearerToken) {
     try {
       // Bearer 토큰에서 JWT 추출
       String token = bearerToken.substring(7);
       // 모든 클레임 추출
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
-      // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 뱃지 가져오기
+      // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 운동 기록 가져오기
       String jwtLoginId = claims.getId();
 
-      // 로그인 아이디로 사용자 런지 기록 조회
-      List<LungeEntity> lungeEntities = exerciseService.getAllLungeByLoginId(jwtLoginId);
-      return ResponseEntity.ok(lungeEntities);
+      // 로그인 아이디로 사용자 운동 가져오기
+      List<LungeDTO> lungerecords = exerciseService.getAllLungeByLoginId(jwtLoginId);
+      System.out.println(lungerecords);
+      return ResponseEntity.ok(lungerecords);
     } catch (RuntimeException e) {
       log.error(
-          "Error during fetching Lunge records in controller /api/lunge/get_my_record: {}",
+          "Error during fetching user squat in controller /api/squats/get_my_record: {}",
           e.getMessage());
-      return ResponseEntity.status(500).body(null);
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
   /*
