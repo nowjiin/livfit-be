@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.hotspot.livfit.challenge.entity.Challenge;
 import com.hotspot.livfit.challenge.repository.ChallengeRepository;
-import com.hotspot.livfit.exercise.entity.Lunge;
-import com.hotspot.livfit.exercise.entity.Pushup;
-import com.hotspot.livfit.exercise.entity.Squat;
+import com.hotspot.livfit.exercise.entity.LungeEntity;
+import com.hotspot.livfit.exercise.entity.PushupEntity;
+import com.hotspot.livfit.exercise.entity.SquatEntity;
 import com.hotspot.livfit.exercise.repository.LungeRepository;
 import com.hotspot.livfit.exercise.repository.PushupRepository;
 import com.hotspot.livfit.exercise.repository.SquatRepository;
@@ -49,9 +49,9 @@ public class MyPageService {
       totalPoints = history.get(history.size() - 1).getTotalPoints();
     }
 
-    List<Lunge> lunges = lungeRepository.findByLoginId(loginId);
-    List<Pushup> pushups = pushupRepository.findByLoginId(loginId);
-    List<Squat> squats = squatRepository.findByLoginId(loginId);
+    List<LungeEntity> lunges = lungeRepository.findByLoginId(loginId);
+    List<PushupEntity> pushups = pushupRepository.findByLoginId(loginId);
+    List<SquatEntity> squats = squatRepository.findByLoginId(loginId);
     List<Challenge> challenges = challengeRepository.findAllChallenges();
 
     return new MyPageResponseDTO(
