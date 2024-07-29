@@ -126,16 +126,5 @@ public class TurtleController {
     }
     return ResponseEntity.ok(records);
   }
-  /*
-   * URL: /api/turtle/top_records
-   * HTTP Method: GET
-   */
-  @GetMapping("/top3-records-direct")
-  public ResponseEntity<List<TurtleDTO>> getTopThreeRecordsDirect() {
-    List<TurtleDTO> topRecords = turtleService.findTopThreeRecordsDirect();
-    if (topRecords.isEmpty()) {
-      return ResponseEntity.noContent().build();
-    }
-    return ResponseEntity.ok(topRecords);
-  }
+
 }

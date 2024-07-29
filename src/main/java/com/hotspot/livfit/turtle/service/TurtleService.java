@@ -43,10 +43,5 @@ public class TurtleService {
     return turtleRepository.findAllRecords();
   }
 
-  public List<TurtleDTO> findTopThreeRecordsDirect() {
-    List<Object[]> results = turtleRepository.findTopThreeRecordsNative();
-    return results.stream()
-        .map(result -> new TurtleDTO((String) result[0], (Integer) result[1]))
-        .collect(Collectors.toList());
-  }
+
 }
