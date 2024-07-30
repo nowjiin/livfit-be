@@ -1,7 +1,6 @@
 package com.hotspot.livfit.turtle.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,12 +40,5 @@ public class TurtleService {
 
   public List<TurtleDTO> findAllRecords() {
     return turtleRepository.findAllRecords();
-  }
-
-  public List<TurtleDTO> findTopThreeRecordsDirect() {
-    List<Object[]> results = turtleRepository.findTopThreeRecordsNative();
-    return results.stream()
-        .map(result -> new TurtleDTO((String) result[0], (Integer) result[1]))
-        .collect(Collectors.toList());
   }
 }
