@@ -1,22 +1,23 @@
 package com.hotspot.livfit.today_exercise.controller;
 
+import java.time.DayOfWeek;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import com.hotspot.livfit.today_exercise.dto.TodayExerciseDTO;
 import com.hotspot.livfit.today_exercise.entity.TodayExercise;
+import com.hotspot.livfit.today_exercise.entity.TodayExerciseUser;
 import com.hotspot.livfit.today_exercise.service.TodayExerciseService;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import com.hotspot.livfit.user.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 
 @RestController
 @RequestMapping("/api/today_exercise")
@@ -24,20 +25,52 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @Slf4j
 public class TodayExerciseController {
   private final TodayExerciseService todayExerciseService;
+  private final JwtUtil jwtUtil;
+  private static final Logger logger = LoggerFactory.getLogger(TodayExerciseController.class);
+
   /*
    * URL: api/today_exercise/show/
    * HTTP Method: GET
    * 토큰 필요 x
    */
 
-  @Operation(summary = "오늘의 운동 id별 리스트", description = "오늘의 운동 가져오기")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "가져오기 완료."),
-    @ApiResponse(responseCode = "400", description = "잘못된 요청."),
-    @ApiResponse(responseCode = "500", description = "서버 에러.")
-  })
+  // 오늘의 운동 기록 저장하기
+  @PostMapping("/save")
+  public ResponseEntity<?> saveTodayExercise(
+      @RequestHeader("Authorization") String bearerToken,
+      @RequestBody TodayExerciseDTO todayExerciseRequest) {
 
-  // 번호에 맞춰서 프론트 엔드가 사용하게
+    if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("Invalid Authorization header format.");
+    }
+    String token = bearerToken.substring(7).trim();
+    if (token.isEmpty() || token.split("\\.").length != 3) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid JWT token format.");
+    }
+
+    try {
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String jwtLoginId = claims.getId(); // JWT에서 사용자 ID를 추출
+
+      // TodayExerciseService를 통해 오늘의 운동 기록을 저장
+      TodayExerciseUser todayExerciseUser =
+          todayExerciseService.saveChallenge(
+              jwtLoginId,
+              DayOfWeek.valueOf(todayExerciseRequest.getDayOfWeek().toString()),
+              todayExerciseRequest.getSuccess());
+      logger.info("일일 운동 기록 저장됨: {}", todayExerciseUser);
+
+      return ResponseEntity.ok(todayExerciseUser);
+
+    } catch (Exception e) {
+      log.error("An error occurred while saving the today exercise record: {}", e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An error occurred while saving the today exercise record: " + e.getMessage());
+    }
+  }
+
+  // 번호에 맞춰서 프론트 엔드가 사용하게[오늘의 운동 리스트 아이디]
   @GetMapping("/show/{id}")
   public ResponseEntity<TodayExercise> getTodayExerciseById(@PathVariable Long id) {
     Optional<TodayExercise> todayExercise = todayExerciseService.getTodayExercises(id);

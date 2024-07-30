@@ -7,8 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-// 기록 데이터 받아올 것들 담고 있는 DTO 클래스
-public class RecordDTO {
+public class SquatDTO {
+
+  private String login_id;
   private long timer_sec;
   private int count;
   private int perfect;

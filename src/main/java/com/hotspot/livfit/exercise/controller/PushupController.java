@@ -5,13 +5,16 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hotspot.livfit.exercise.dto.PushupDTO;
 import com.hotspot.livfit.exercise.dto.PushupGraphDTO;
 import com.hotspot.livfit.exercise.dto.RecordDTO;
-import com.hotspot.livfit.exercise.entity.PushupEntity;
+import com.hotspot.livfit.exercise.repository.PushupRepository;
 import com.hotspot.livfit.exercise.service.ExerciseService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
@@ -25,6 +28,8 @@ import io.jsonwebtoken.JwtException;
 public class PushupController {
   private final ExerciseService exerciseService;
   private final JwtUtil jwtUtil;
+  private final PushupRepository pushupRepository;
+  private static final Logger logger = LoggerFactory.getLogger(PushupController.class);
 
   // 푸쉬업 기록 저장
   /*
@@ -66,7 +71,10 @@ public class PushupController {
           recordDto.getCount(),
           recordDto.getPerfect(),
           recordDto.getGood(),
-          recordDto.getGreat());
+          recordDto.getGreat(),
+          recordDto.getCreated_at(),
+          recordDto.getGraph());
+      logger.info("푸쉬업 기록 저장 사용자 : {}", jwtLoginId);
 
       return ResponseEntity.ok().body("pushup record saved successfully.");
     } catch (JwtException e) {
@@ -94,11 +102,13 @@ public class PushupController {
       String jwtLoginId = claims.getId();
 
       // 로그인 아이디로 사용자 운동 가져오기
-      List<PushupEntity> pushupEntities = exerciseService.getAllPushupByLoginId(jwtLoginId);
-      return ResponseEntity.ok(pushupEntities);
+      logger.info("푸쉬업 기록 조회, 사용자 아이디: {}", jwtLoginId);
+
+      List<PushupDTO> pushuprecords = exerciseService.getAllPushupByLoginId(jwtLoginId);
+      return ResponseEntity.ok(pushuprecords);
     } catch (RuntimeException e) {
       log.error(
-          "Error during fetching user pushup in controller /api/pushup/get_my_record: {}",
+          "Error during fetching user squat in controller /api/squats/get_my_record: {}",
           e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
@@ -117,6 +127,7 @@ public class PushupController {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 운동 기록 가져오기
       String jwtLoginId = claims.getId();
+      logger.info("푸쉬업 그래프 기록 조회, 사용자 아이디: {}", jwtLoginId);
 
       List<PushupGraphDTO> pushupEntities = exerciseService.getPushupGrpah(jwtLoginId);
       return ResponseEntity.ok(pushupEntities);

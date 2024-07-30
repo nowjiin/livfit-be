@@ -15,8 +15,6 @@ import com.hotspot.livfit.user.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/points")
@@ -28,11 +26,6 @@ public class PointController {
   private final JwtUtil jwtUtil;
 
   @Operation(summary = "포인트 적립/차감", description = "사용자의 포인트를 적립하거나 차감")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "포인트 적립/차감 성공"),
-    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-    @ApiResponse(responseCode = "500", description = "서버 에러")
-  })
   @PostMapping("/update")
   public ResponseEntity<?> updatePoints(
       @RequestHeader("Authorization") String bearerToken,
@@ -52,11 +45,6 @@ public class PointController {
   }
 
   @Operation(summary = "포인트 히스토리 조회", description = "사용자의 포인트 히스토리를 조회")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "포인트 히스토리 조회 성공"),
-    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-    @ApiResponse(responseCode = "500", description = "서버 에러")
-  })
   @GetMapping
   public ResponseEntity<?> getPointHistory(@RequestHeader("Authorization") String bearerToken) {
     try {
@@ -69,6 +57,27 @@ public class PointController {
     } catch (RuntimeException e) {
       log.error(
           "Error during fetching point history in controller /api/points: {}", e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+  // 자동으로 포인트 적립
+  @Operation(summary = "운동 완료 시 포인트 적립", description = "사용자가 운동을 완료했을 때 포인트를 적립")
+  @PostMapping("/earn-points")
+  public ResponseEntity<?> earnPoints(@RequestHeader("Authorization") String bearerToken) {
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String loginId = claims.getId(); // 로그인 아이디
+      // 포인트 적립
+      PointRequestDTO pointRequestDTO = new PointRequestDTO();
+      pointRequestDTO.setPoints(300);
+      pointRequestDTO.setType("earn");
+      pointRequestDTO.setDescription("운동 완료");
+      pointService.updatePoints(loginId, pointRequestDTO);
+      return ResponseEntity.ok("Points earned successfully");
+    } catch (RuntimeException e) {
+      log.error(
+          "Error during earning points in controller /api/points/earn-points: {}", e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }

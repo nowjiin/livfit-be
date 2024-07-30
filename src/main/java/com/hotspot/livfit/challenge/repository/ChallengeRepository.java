@@ -5,14 +5,17 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import com.hotspot.livfit.challenge.entity.Challenge;
+import com.hotspot.livfit.challenge.entity.ChallengeEntity;
 
-public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
-  @Query("SELECT a from Challenge a WHERE a.id = :id")
-  // db가 없을 경우를 대비해 optional로 작성함 (optional.empty()가 반환 됨)
-  Optional<Challenge> findById(Long id);
+public interface ChallengeRepository extends JpaRepository<ChallengeEntity, Long> {
+  @Query("SELECT a from ChallengeEntity a WHERE a.id = :id")
+  Optional<ChallengeEntity> findByNumberId(Long id);
 
-  @Query("SELECT c FROM Challenge c")
-  List<Challenge> findAllChallenges();
+  @Query("SELECT c FROM ChallengeEntity c")
+  List<ChallengeEntity> findAllChallenges();
+
+  @Query("SELECT c FROM ChallengeEntity c WHERE c.title = :title")
+  Optional<ChallengeEntity> findByTitle(@Param("title") String title);
 }
