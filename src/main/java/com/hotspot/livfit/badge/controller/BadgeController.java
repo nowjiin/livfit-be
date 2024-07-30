@@ -53,6 +53,7 @@ public class BadgeController {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       String loginId = claims.getId();
 
+      // 중복된 뱃지인지 확인하고, 중복되지 않으면 부여
       boolean success =
           userBadgeService.checkandAwardBadge(
               loginId, badgeRequestDTO.getBadgeId(), badgeRequestDTO.isConditionCheck());
@@ -60,26 +61,23 @@ public class BadgeController {
       if (success) {
         return ResponseEntity.ok(new BadgeResponseDTO(true, "Badge awarded successfully"));
       } else {
-        return ResponseEntity.ok(new BadgeResponseDTO(false, "Badge awarded failed"));
+        return ResponseEntity.ok(
+            new BadgeResponseDTO(false, "Badge awarded failed or already exists"));
       }
     } catch (RuntimeException e) {
       log.error(
-          "Error during badge award in controller /api/userbadges/check-award: {}",
-          e.getMessage()); // 유저 컨트롤러 복붙했어서 오타난거 수정..
+          "Error during badge award in controller /api/userbadges/check-award: {}", e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
 
-  // 조회 로직 추가
+  // 사용자의 모든 뱃지 가져오기
   @Operation(summary = "사용자의 모든 뱃지 가져오기", description = "특정 사용자의 모든 뱃지 가져오기")
   @GetMapping("/mybadge")
   public ResponseEntity<?> getUserBadges(@RequestHeader("Authorization") String bearerToken) {
     try {
-      // Bearer 토큰에서 JWT 추출
       String token = bearerToken.substring(7);
-      // 모든 클레임 추출
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
-      // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 뱃지 가져오기
       String jwtLoginId = claims.getId();
 
       // 로그인 아이디로 사용자 뱃지 조회
@@ -93,10 +91,11 @@ public class BadgeController {
                 userBadge.getUser().getLoginId(),
                 userBadge.getUser().getNickname(),
                 userBadge.getBadge().getId(),
-                userBadge.getEarnedTime().toString());
+                userBadge.getEarnedTime().toString(),
+                userBadge.isMainBadge() // 메인 뱃지 여부
+                );
         badgeResponseDTOS.add(dto);
       }
-
       return ResponseEntity.ok(badgeResponseDTOS);
 
     } catch (RuntimeException e) {
@@ -106,7 +105,7 @@ public class BadgeController {
     }
   }
 
-  // 메인뱃지 설정
+  // 메인 뱃지 설정
   @Operation(summary = "메인 뱃지 설정", description = "사용자가 메인 뱃지를 설정")
   @PostMapping("/set-main-badge")
   public ResponseEntity<?> setMainBadge(

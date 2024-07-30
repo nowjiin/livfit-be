@@ -24,27 +24,31 @@ public class UserBadgeService {
   private final UserRepository userRepository;
   private final BadgeRepository badgeRepository;
 
-  // login id로 유저 엔티티 조회
+  // 특정 뱃지를 부여 (중복 방지)
   @Transactional
-  public boolean checkandAwardBadge(
-      String loginId, String badgeId, boolean conditionCheck) { // checkNaward -> checkandAward로 변경
+  public boolean checkandAwardBadge(String loginId, String badgeId, boolean conditionCheck) {
+    // loginId를 사용하여 사용자 조회
     User user =
         userRepository
             .findByLoginId(loginId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
+    // badgeId를 사용하여 Badge 조회
     Badge badge =
         badgeRepository
             .findById(badgeId)
             .orElseThrow(() -> new RuntimeException("Badge not found"));
 
     if (conditionCheck) {
-      // 조건 만족 시 뱃지 부여
-      awardBadgeToUser(user, badge);
-      return true; // 뱃지 부여
-    } else {
-      return false; // 조건 만족 X
+      // 사용자가 해당 뱃지를 이미 가지고 있는지 확인
+      boolean alreadyHasBadge = userBadgeRepository.existsByUserAndBadge(user, badge);
+      if (!alreadyHasBadge) {
+        // 중복되지 않으면 뱃지를 부여
+        awardBadgeToUser(user, badge);
+        return true;
+      }
     }
+    return false; // 조건을 만족하지 않거나 이미 뱃지를 소유하고 있는 경우
   }
 
   // 유저뱃지 엔티티 생성&저장
@@ -80,6 +84,29 @@ public class UserBadgeService {
 
     mainBadge.setMainBadge(true);
     userBadgeRepository.save(mainBadge);
+  }
+
+  // 특정 뱃지를 부여 (중복 방지)
+  @Transactional
+  public void awardBadgeIfNotExist(String loginId, String badgeId) {
+    // loginId를 사용하여 사용자 조회
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    // badgeId를 사용하여 Badge 조회
+    Badge badge =
+        badgeRepository
+            .findById(badgeId)
+            .orElseThrow(() -> new RuntimeException("Badge not found"));
+
+    // 사용자가 해당 뱃지를 이미 가지고 있는지 확인
+    boolean alreadyHasBadge = userBadgeRepository.existsByUserAndBadge(user, badge);
+    if (!alreadyHasBadge) {
+      // 중복되지 않으면 뱃지를 부여
+      awardBadgeToUser(user, badge);
+    }
   }
 
   // 특정 사용자의 뱃지를 조회

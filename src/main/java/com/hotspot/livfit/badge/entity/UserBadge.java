@@ -38,4 +38,8 @@ public class UserBadge {
   // 메인 뱃지 여부
   @Column(name = "main_badge", nullable = false)
   private Boolean mainBadge = false; // 기본값을 false로 설정
+
+  public boolean isMainBadge() {
+    return mainBadge;
+  }
 }
