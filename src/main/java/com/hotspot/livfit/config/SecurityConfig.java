@@ -56,7 +56,7 @@ public class SecurityConfig {
                         "/api/challenge/**",
                         "/api/mypage/**",
                         "/api/today_exercise/**",
-                        "api/turtle/**")
+                        "/api/turtle/**")
                     .permitAll()
                     .requestMatchers("/api/v1/user/*")
                     .hasRole("USER")
