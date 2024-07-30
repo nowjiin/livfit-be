@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.hotspot.livfit.exercise.dto.RecordDTO;
+import com.hotspot.livfit.exercise.dto.SquatDTO;
 import com.hotspot.livfit.exercise.dto.SquatGraphDTO;
-import com.hotspot.livfit.exercise.entity.SquatEntity;
 import com.hotspot.livfit.exercise.service.ExerciseService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
@@ -66,7 +66,9 @@ public class SquatController {
           recordDto.getCount(),
           recordDto.getPerfect(),
           recordDto.getGood(),
-          recordDto.getGreat());
+          recordDto.getGreat(),
+          recordDto.getCreated_at(),
+          recordDto.getGraph());
 
       return ResponseEntity.ok().body("Squat record saved successfully.");
     } catch (JwtException e) {
@@ -96,9 +98,9 @@ public class SquatController {
       String jwtLoginId = claims.getId();
 
       // 로그인 아이디로 사용자 운동 가져오기
-      List<SquatEntity> squatEntities = exerciseService.getAllSquatByLoginId(jwtLoginId);
-      System.out.println(squatEntities);
-      return ResponseEntity.ok(squatEntities);
+      List<SquatDTO> squatRecords = exerciseService.getAllSquatByLoginId(jwtLoginId);
+      System.out.println(squatRecords);
+      return ResponseEntity.ok(squatRecords);
     } catch (RuntimeException e) {
       log.error(
           "Error during fetching user squat in controller /api/squats/get_my_record: {}",

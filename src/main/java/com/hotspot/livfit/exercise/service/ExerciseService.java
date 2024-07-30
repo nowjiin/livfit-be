@@ -1,14 +1,14 @@
 package com.hotspot.livfit.exercise.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
-import com.hotspot.livfit.exercise.dto.LungeGraphDTO;
-import com.hotspot.livfit.exercise.dto.PushupGraphDTO;
-import com.hotspot.livfit.exercise.dto.SquatGraphDTO;
+import com.hotspot.livfit.exercise.dto.*;
 import com.hotspot.livfit.exercise.entity.LungeEntity;
 import com.hotspot.livfit.exercise.entity.PushupEntity;
 import com.hotspot.livfit.exercise.entity.SquatEntity;
@@ -30,11 +30,18 @@ public class ExerciseService {
 
   // 런지 기록 저장 로직
   public LungeEntity saveRecordLunge(
-      String jwtLoginId, Long timerSec, int count, int perfect, int good, int great) {
+      String jwtLoginId,
+      Long timerSec,
+      int count,
+      int perfect,
+      int good,
+      int great,
+      LocalDateTime created_at,
+      Double graph) {
 
     User user =
         userRepository
-            .findByLoginId(jwtLoginId) // 이 메소드는 UserRepository에 정의되어야 합니다.
+            .findByLoginId(jwtLoginId)
             .orElseThrow(() -> new RuntimeException("User not found with login ID: " + jwtLoginId));
 
     LungeEntity lungeEntity = new LungeEntity();
@@ -44,14 +51,17 @@ public class ExerciseService {
     lungeEntity.setPerfect(perfect);
     lungeEntity.setGood(good);
     lungeEntity.setGreat(great);
+    lungeEntity.setCreated_at(created_at);
+    lungeEntity.setGraph(graph);
 
+    // 효율성 점수 계산 (운동 개수 / 시간)
     double efficiency = timerSec > 0 ? (double) count / timerSec : 0.0; // 0으로 나누는 경우를 방지
 
     // 품질 점수 계산 (가중치 적용)
     int quality = (perfect * 3) + (great * 2) + good;
 
     // 종합 성과 지표 계산
-    double graph = efficiency + quality;
+    graph = efficiency + quality;
 
     // 종합 성과 지표 설정
     lungeEntity.setGraph(graph);
@@ -60,22 +70,43 @@ public class ExerciseService {
   }
 
   // 특정 사용자의 모든 런지 기록 가져오기
-  public List<LungeEntity> getAllLungeByLoginId(String loginId) {
-    return lungeRepository.findByLoginId(loginId);
+  public List<LungeDTO> getAllLungeByLoginId(String loginId) {
+    List<LungeEntity> lungeEntities = lungeRepository.findByLoginId(loginId); // 조회 로직
+    return lungeEntities.stream().map(this::convertToLungeDTO).collect(Collectors.toList());
   }
 
-  // 푸쉬업 기록 그래프 가져오기
+  private LungeDTO convertToLungeDTO(LungeEntity entity) {
+    LungeDTO dto = new LungeDTO();
+    dto.setLogin_id(entity.getUser().getLoginId());
+    dto.setTimer_sec(entity.getTimer_sec());
+    dto.setCount(entity.getCount());
+    dto.setPerfect(entity.getPerfect());
+    dto.setGreat(entity.getGreat());
+    dto.setGood(entity.getGood());
+    dto.setCreated_at(entity.getCreated_at());
+    dto.setGraph(entity.getGraph());
+    return dto;
+  }
+
+  // 런지 기록 그래프 가져오기
   public List<LungeGraphDTO> getLungeGrpah(String loginId) {
     return lungeRepository.findAllByOrderByCreatedAtDesc(loginId);
   }
 
   // 푸쉬업 기록 저장 로직
   public PushupEntity saveRecordPushup(
-      String jwtLoginId, Long timerSec, int count, int perfect, int good, int great) {
+      String jwtLoginId,
+      Long timerSec,
+      int count,
+      int perfect,
+      int good,
+      int great,
+      LocalDateTime created_at,
+      Double graph) {
 
     User user =
         userRepository
-            .findByLoginId(jwtLoginId) // 이 메소드는 UserRepository에 정의되어야 합니다.
+            .findByLoginId(jwtLoginId)
             .orElseThrow(() -> new RuntimeException("User not found with login ID: " + jwtLoginId));
 
     PushupEntity pushupEntity = new PushupEntity();
@@ -85,6 +116,8 @@ public class ExerciseService {
     pushupEntity.setPerfect(perfect);
     pushupEntity.setGood(good);
     pushupEntity.setGreat(great);
+    pushupEntity.setCreated_at(created_at);
+    pushupEntity.setGraph(graph);
 
     // 효율성 점수 계산 (운동 개수 / 시간)
     double efficiency = timerSec > 0 ? (double) count / timerSec : 0.0; // 0으로 나누는 경우를 방지
@@ -93,7 +126,7 @@ public class ExerciseService {
     int quality = (perfect * 3) + (great * 2) + good;
 
     // 종합 성과 지표 계산
-    double graph = efficiency + quality;
+    graph = efficiency + quality;
 
     // 종합 성과 지표 설정
     pushupEntity.setGraph(graph);
@@ -102,8 +135,22 @@ public class ExerciseService {
   }
 
   // 특정 사용자의 모든 푸쉬업 기록 가져오기
-  public List<PushupEntity> getAllPushupByLoginId(String loginId) {
-    return pushupRepository.findByLoginId(loginId);
+  public List<PushupDTO> getAllPushupByLoginId(String loginId) {
+    List<PushupEntity> pushupEntities = pushupRepository.findByLoginId(loginId); // 조회 로직
+    return pushupEntities.stream().map(this::convertToPushupDTO).collect(Collectors.toList());
+  }
+
+  private PushupDTO convertToPushupDTO(PushupEntity entity) {
+    PushupDTO dto = new PushupDTO();
+    dto.setLogin_id(entity.getUser().getLoginId());
+    dto.setTimer_sec(entity.getTimer_sec());
+    dto.setCount(entity.getCount());
+    dto.setPerfect(entity.getPerfect());
+    dto.setGreat(entity.getGreat());
+    dto.setGood(entity.getGood());
+    dto.setCreated_at(entity.getCreated_at());
+    dto.setGraph(entity.getGraph());
+    return dto;
   }
 
   // 푸쉬업 기록 그래프 가져오기
@@ -113,11 +160,18 @@ public class ExerciseService {
 
   // 스쿼트 기록 저장 로직
   public SquatEntity saveRecordSquat(
-      String jwtLoginId, Long timerSec, int count, int perfect, int good, int great) {
+      String jwtLoginId,
+      Long timerSec,
+      int count,
+      int perfect,
+      int good,
+      int great,
+      LocalDateTime created_at,
+      Double graph) {
 
     User user =
         userRepository
-            .findByLoginId(jwtLoginId) // 이 메소드는 UserRepository에 정의되어야 합니다.
+            .findByLoginId(jwtLoginId)
             .orElseThrow(() -> new RuntimeException("User not found with login ID: " + jwtLoginId));
 
     SquatEntity squatEntity = new SquatEntity();
@@ -127,6 +181,8 @@ public class ExerciseService {
     squatEntity.setPerfect(perfect);
     squatEntity.setGood(good);
     squatEntity.setGreat(great);
+    squatEntity.setCreated_at(created_at);
+    squatEntity.setGraph(graph);
 
     // 효율성 점수 계산 (운동 개수 / 시간)
     double efficiency = timerSec > 0 ? (double) count / timerSec : 0.0; // 0으로 나누는 경우를 방지
@@ -135,7 +191,7 @@ public class ExerciseService {
     int quality = (perfect * 3) + (great * 2) + good;
 
     // 종합 성과 지표 계산
-    double graph = efficiency + quality;
+    graph = efficiency + quality;
 
     // 종합 성과 지표 설정
     squatEntity.setGraph(graph);
@@ -143,9 +199,22 @@ public class ExerciseService {
     return squatRepository.save(squatEntity);
   }
 
-  // 특정 사용자의 모든 스쿼트 기록 가져오기
-  public List<SquatEntity> getAllSquatByLoginId(String loginId) {
-    return squatRepository.findByLoginId(loginId);
+  public List<SquatDTO> getAllSquatByLoginId(String loginId) {
+    List<SquatEntity> squatEntities = squatRepository.findByLoginId(loginId); // 조회 로직
+    return squatEntities.stream().map(this::convertToDTO).collect(Collectors.toList());
+  }
+
+  private SquatDTO convertToDTO(SquatEntity entity) {
+    SquatDTO dto = new SquatDTO();
+    dto.setLogin_id(entity.getUser().getLoginId());
+    dto.setTimer_sec(entity.getTimer_sec());
+    dto.setCount(entity.getCount());
+    dto.setPerfect(entity.getPerfect());
+    dto.setGreat(entity.getGreat());
+    dto.setGood(entity.getGood());
+    dto.setCreated_at(entity.getCreated_at());
+    dto.setGraph(entity.getGraph());
+    return dto;
   }
 
   // 스쿼트 기록 그래프 가져오기

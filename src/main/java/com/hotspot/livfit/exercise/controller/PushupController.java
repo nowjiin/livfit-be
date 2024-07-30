@@ -9,9 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hotspot.livfit.exercise.dto.PushupDTO;
 import com.hotspot.livfit.exercise.dto.PushupGraphDTO;
 import com.hotspot.livfit.exercise.dto.RecordDTO;
-import com.hotspot.livfit.exercise.entity.PushupEntity;
+import com.hotspot.livfit.exercise.repository.PushupRepository;
 import com.hotspot.livfit.exercise.service.ExerciseService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
@@ -25,6 +26,7 @@ import io.jsonwebtoken.JwtException;
 public class PushupController {
   private final ExerciseService exerciseService;
   private final JwtUtil jwtUtil;
+  private final PushupRepository pushupRepository;
 
   // 푸쉬업 기록 저장
   /*
@@ -66,7 +68,9 @@ public class PushupController {
           recordDto.getCount(),
           recordDto.getPerfect(),
           recordDto.getGood(),
-          recordDto.getGreat());
+          recordDto.getGreat(),
+          recordDto.getCreated_at(),
+          recordDto.getGraph());
 
       return ResponseEntity.ok().body("pushup record saved successfully.");
     } catch (JwtException e) {
@@ -94,11 +98,12 @@ public class PushupController {
       String jwtLoginId = claims.getId();
 
       // 로그인 아이디로 사용자 운동 가져오기
-      List<PushupEntity> pushupEntities = exerciseService.getAllPushupByLoginId(jwtLoginId);
-      return ResponseEntity.ok(pushupEntities);
+      List<PushupDTO> pushuprecords = exerciseService.getAllPushupByLoginId(jwtLoginId);
+      System.out.println(pushuprecords);
+      return ResponseEntity.ok(pushuprecords);
     } catch (RuntimeException e) {
       log.error(
-          "Error during fetching user pushup in controller /api/pushup/get_my_record: {}",
+          "Error during fetching user squat in controller /api/squats/get_my_record: {}",
           e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
