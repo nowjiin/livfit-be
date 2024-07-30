@@ -34,4 +34,8 @@ public class UserBadge {
   // 뱃지 획득 시간
   @Column(name = "earned_time", nullable = false)
   private LocalDateTime earnedTime;
+
+  // 메인 뱃지 여부
+  @Column(name = "main_badge", nullable = false)
+  private Boolean mainBadge = false; // 기본값을 false로 설정
 }
