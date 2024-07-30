@@ -13,8 +13,6 @@ import com.hotspot.livfit.user.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/mypage")
@@ -27,11 +25,6 @@ public class MyPageController {
 
   // 마이페이지 정보 조회
   @Operation(summary = "마이페이지 정보 조회", description = "사용자의 마이페이지 정보를 조회")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "마이페이지 정보 조회 성공"),
-    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-    @ApiResponse(responseCode = "500", description = "서버 에러")
-  })
   @GetMapping
   public ResponseEntity<?> getMyPageInfo(@RequestHeader("Authorization") String bearerToken) {
     try {
@@ -49,11 +42,6 @@ public class MyPageController {
 
   // 닉네임 업데이트
   @Operation(summary = "닉네임 변경", description = "사용자의 닉네임을 변경")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "닉네임 변경 성공"),
-    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-    @ApiResponse(responseCode = "500", description = "서버 에러")
-  })
   @PutMapping("/nickname")
   public ResponseEntity<?> updateNickname(
       @RequestHeader("Authorization") String bearerToken,

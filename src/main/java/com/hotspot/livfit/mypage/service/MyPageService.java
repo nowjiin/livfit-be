@@ -1,6 +1,7 @@
 package com.hotspot.livfit.mypage.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -10,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hotspot.livfit.badge.repository.UserBadgeRepository;
 import com.hotspot.livfit.challenge.entity.ChallengeEntity;
 import com.hotspot.livfit.challenge.repository.ChallengeRepository;
+import com.hotspot.livfit.exercise.dto.LungeDTO;
+import com.hotspot.livfit.exercise.dto.PushupDTO;
+import com.hotspot.livfit.exercise.dto.SquatDTO;
 import com.hotspot.livfit.exercise.entity.LungeEntity;
 import com.hotspot.livfit.exercise.entity.PushupEntity;
 import com.hotspot.livfit.exercise.entity.SquatEntity;
@@ -32,7 +36,7 @@ public class MyPageService {
   private final PushupRepository pushupRepository;
   private final SquatRepository squatRepository;
   private final ChallengeRepository challengeRepository;
-  private final UserBadgeRepository userBadgeRepository; // 추가
+  private final UserBadgeRepository userBadgeRepository;
 
   @Transactional(readOnly = true)
   public MyPageResponseDTO getMyPageInfo(String loginId) {
@@ -41,15 +45,31 @@ public class MyPageService {
             .findByLoginId(loginId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
+    // 특정 사용자 ID의 누적 포인트 히스토리 조회하고
     int totalPoints = 0;
     List<PointHistory> history = pointHistoryRepository.findByUser_LoginId(loginId);
+    // 히스토리가 비어있지 않다면, 마지막 히스토리의 totalPoints 값을 가져오도록 짰습니다
     if (!history.isEmpty()) {
       totalPoints = history.get(history.size() - 1).getTotalPoints();
     }
 
-    List<LungeEntity> lunges = lungeRepository.findByLoginId(loginId);
-    List<PushupEntity> pushups = pushupRepository.findByLoginId(loginId);
-    List<SquatEntity> squats = squatRepository.findByLoginId(loginId);
+    // 운동 기록을 DTO로 변환하여 가져옴
+    List<LungeDTO> lunges =
+        lungeRepository.findByLoginId(loginId).stream()
+            .map(this::convertToLungeDTO)
+            .collect(Collectors.toList());
+
+    List<PushupDTO> pushups =
+        pushupRepository.findByLoginId(loginId).stream()
+            .map(this::convertToPushupDTO)
+            .collect(Collectors.toList());
+
+    List<SquatDTO> squats =
+        squatRepository.findByLoginId(loginId).stream()
+            .map(this::convertToSquatDTO)
+            .collect(Collectors.toList());
+
+    // 모든 챌린지 조회
     List<ChallengeEntity> challengeEntities = challengeRepository.findAllChallenges();
 
     // 뱃지 개수 조회 추가 (피그마 보니까 마이페이지에 뱃지 갯수 있어서 추가했습니다)
@@ -59,11 +79,53 @@ public class MyPageService {
         user.getLoginId(),
         user.getNickname(),
         totalPoints,
+        badgeCount,
         lunges,
         pushups,
         squats,
-        challengeEntities,
-        badgeCount);
+        challengeEntities);
+  }
+
+  // LungeEntity를 LungeDTO로 변환
+  private LungeDTO convertToLungeDTO(LungeEntity lungeEntity) {
+    LungeDTO dto = new LungeDTO();
+    dto.setLogin_id(lungeEntity.getUser().getLoginId());
+    dto.setTimer_sec(lungeEntity.getTimer_sec());
+    dto.setCount(lungeEntity.getCount());
+    dto.setPerfect(lungeEntity.getPerfect());
+    dto.setGreat(lungeEntity.getGreat());
+    dto.setGood(lungeEntity.getGood());
+    dto.setCreated_at(lungeEntity.getCreated_at());
+    dto.setGraph(lungeEntity.getGraph());
+    return dto;
+  }
+
+  // PushupEntity를 PushupDTO로 변환
+  private PushupDTO convertToPushupDTO(PushupEntity pushupEntity) {
+    PushupDTO dto = new PushupDTO();
+    dto.setLogin_id(pushupEntity.getUser().getLoginId());
+    dto.setTimer_sec(pushupEntity.getTimer_sec());
+    dto.setCount(pushupEntity.getCount());
+    dto.setPerfect(pushupEntity.getPerfect());
+    dto.setGreat(pushupEntity.getGreat());
+    dto.setGood(pushupEntity.getGood());
+    dto.setCreated_at(pushupEntity.getCreated_at());
+    dto.setGraph(pushupEntity.getGraph());
+    return dto;
+  }
+
+  // SquatEntity를 SquatDTO로 변환
+  private SquatDTO convertToSquatDTO(SquatEntity squatEntity) {
+    SquatDTO dto = new SquatDTO();
+    dto.setLogin_id(squatEntity.getUser().getLoginId());
+    dto.setTimer_sec(squatEntity.getTimer_sec());
+    dto.setCount(squatEntity.getCount());
+    dto.setPerfect(squatEntity.getPerfect());
+    dto.setGreat(squatEntity.getGreat());
+    dto.setGood(squatEntity.getGood());
+    dto.setCreated_at(squatEntity.getCreated_at());
+    dto.setGraph(squatEntity.getGraph());
+    return dto;
   }
 
   // 닉네임 업데이트
