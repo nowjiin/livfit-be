@@ -39,6 +39,10 @@ public class UserBadge {
   @Column(name = "main_badge", nullable = false)
   private Boolean mainBadge = false; // 기본값을 false로 설정
 
+  // Count 추가 - 특정 뱃지를 몇 번 수여받았는지
+  @Column(name = "count", nullable = false)
+  private int count = 1; // 기본값을 1로 설정
+
   public boolean isMainBadge() {
     return mainBadge;
   }
