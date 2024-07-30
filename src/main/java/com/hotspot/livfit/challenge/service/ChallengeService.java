@@ -3,11 +3,13 @@ package com.hotspot.livfit.challenge.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
+import com.hotspot.livfit.challenge.dto.ChallengeDTO;
 import com.hotspot.livfit.challenge.entity.ChallengeEntity;
 import com.hotspot.livfit.challenge.entity.ChallengeUserEntity;
 import com.hotspot.livfit.challenge.repository.ChallengeRepository;
@@ -31,7 +33,7 @@ public class ChallengeService {
   }
 
   public ChallengeUserEntity saveChallenge(
-      String jwtLoginId, Long challengeId, LocalDateTime startedAt, String success) {
+      String jwtLoginId, String title, LocalDateTime startedAt, String success) {
     User user =
         userRepository
             .findByLoginId(jwtLoginId)
@@ -39,24 +41,37 @@ public class ChallengeService {
 
     ChallengeEntity challengeEntity =
         challengeRepository
-            .findById(challengeId)
-            .orElseThrow(() -> new RuntimeException("Challenge not found with ID: " + challengeId));
+            .findByTitle(title)
+            .orElseThrow(() -> new RuntimeException("Challenge not found with ID: " + title));
 
     ChallengeUserEntity challengeUserEntity = new ChallengeUserEntity();
-    challengeUserEntity.setUser(user);
-    challengeUserEntity.setChallenge(challengeEntity);
-    challengeUserEntity.setStartedAt(startedAt);
+    challengeUserEntity.setLoginId(user.getLoginId());
+    challengeUserEntity.setTitle(challengeEntity.getTitle());
     challengeUserEntity.setSuccess(success);
+    challengeUserEntity.setStartedAt(startedAt);
 
     return challengeUserRepository.save(challengeUserEntity);
   }
 
-  public List<ChallengeUserEntity> getChallengeUserById(String jwtLoginId) {
-    User user =
-        userRepository
-            .findByLoginId(jwtLoginId)
-            .orElseThrow(() -> new RuntimeException("User not found with login ID: " + jwtLoginId));
+  public List<ChallengeDTO> getChallengeUserById(String jwtLoginId) {
+    List<ChallengeUserEntity> challengeUserEntities =
+        challengeUserRepository.findByLoginId(jwtLoginId);
 
-    return challengeUserRepository.findByLoginId(jwtLoginId);
+    return challengeUserEntities.stream()
+        .map(this::convertToChallengeDTO)
+        .collect(Collectors.toList());
+  }
+
+  private ChallengeDTO convertToChallengeDTO(ChallengeUserEntity entity) {
+    ChallengeDTO dto = new ChallengeDTO();
+    dto.setLoginId(entity.getUser().getLoginId());
+    dto.setStartedAt(entity.getStartedAt());
+    dto.setSuccess(entity.getSuccess());
+    if (entity.getChallenge() != null) {
+      dto.setTitle(entity.getChallenge().getTitle());
+    } else {
+      dto.setTitle("No title available");
+    }
+    return dto;
   }
 }
