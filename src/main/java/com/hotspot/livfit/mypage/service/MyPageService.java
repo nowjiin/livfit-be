@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.hotspot.livfit.badge.repository.UserBadgeRepository;
 import com.hotspot.livfit.challenge.entity.ChallengeEntity;
 import com.hotspot.livfit.challenge.repository.ChallengeRepository;
 import com.hotspot.livfit.exercise.entity.LungeEntity;
@@ -31,6 +32,7 @@ public class MyPageService {
   private final PushupRepository pushupRepository;
   private final SquatRepository squatRepository;
   private final ChallengeRepository challengeRepository;
+  private final UserBadgeRepository userBadgeRepository; // 추가
 
   @Transactional(readOnly = true)
   public MyPageResponseDTO getMyPageInfo(String loginId) {
@@ -39,12 +41,8 @@ public class MyPageService {
             .findByLoginId(loginId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-    // 그냥 누적 포인트 조회하는 로직을 어떻게 짜야할지 모르겠어서
-    // 초기 누적 포인트를 0으로 설정하고
     int totalPoints = 0;
-    // 특정 사용자 ID의 누적 포인트 히스토리 조회하고
     List<PointHistory> history = pointHistoryRepository.findByUser_LoginId(loginId);
-    // 히스토리가 비어있지 않다면, 마지막 히스토리의 totalPoints 값을 가져오도록 짰습니다
     if (!history.isEmpty()) {
       totalPoints = history.get(history.size() - 1).getTotalPoints();
     }
@@ -54,6 +52,9 @@ public class MyPageService {
     List<SquatEntity> squats = squatRepository.findByLoginId(loginId);
     List<ChallengeEntity> challengeEntities = challengeRepository.findAllChallenges();
 
+    // 뱃지 개수 조회 추가 (피그마 보니까 마이페이지에 뱃지 갯수 있어서 추가했습니다)
+    int badgeCount = userBadgeRepository.countByLoginId(loginId);
+
     return new MyPageResponseDTO(
         user.getLoginId(),
         user.getNickname(),
@@ -61,7 +62,8 @@ public class MyPageService {
         lunges,
         pushups,
         squats,
-        challengeEntities);
+        challengeEntities,
+        badgeCount);
   }
 
   // 닉네임 업데이트
