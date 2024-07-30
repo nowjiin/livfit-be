@@ -6,6 +6,8 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,8 @@ import com.hotspot.livfit.user.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 public class PointService {
+  private static final Logger logger = LoggerFactory.getLogger(PointService.class);
+
   private final PointHistoryRepository pointHistoryRepository;
   private final UserRepository userRepository;
 
@@ -40,8 +44,10 @@ public class PointService {
     // 포인트 적립 or 차감 계산
     if (pointRequestDTO.getType().equals("earn")) { // 적립
       totalPoints += pointRequestDTO.getPoints();
+      logger.info("User: {} | {}p Earn", loginId, pointRequestDTO.getPoints());
     } else if (pointRequestDTO.getType().equals("spend")) { // 차감
       totalPoints -= pointRequestDTO.getPoints();
+      logger.info("User: {} | {}p Spend", loginId, pointRequestDTO.getPoints());
     }
 
     PointHistory pointHistory = new PointHistory();
@@ -52,12 +58,23 @@ public class PointService {
     pointHistory.setType(pointRequestDTO.getType()); // 포인트 적립/차감 타입 설정
     pointHistory.setDescription(pointRequestDTO.getDescription()); // 포인트 적립/차감에 대한 설명
     pointHistoryRepository.save(pointHistory);
+
+    logger.info("{}'s Total Points: {}p", loginId, totalPoints);
   }
 
   // 특정 사용자의 포인트 히스토리 조회
   public List<PointHistoryDTO> getPointHistory(String loginId) {
+    logger.info("Point history for user with login ID: {}", loginId);
+
     // 사용자 로그인 ID를 사용하여 해당 사용자의 포인트 히스토리 조회
     List<PointHistory> history = pointHistoryRepository.findByUser_LoginId(loginId);
+
+    if (history.isEmpty()) {
+      logger.warn("No point history found for user with login ID: {}", loginId);
+    } else {
+      logger.info("Point history successfully retrieved for user with login ID: {}", loginId);
+    }
+
     // PointHistoryDTO를 담을 리스트 생성하고
     List<PointHistoryDTO> historyDTOs = new ArrayList<>();
     // 각 포인트 히스토리 객체?를 PointHistoryDTO로 변환해서 리스트에 추가하는 로직입니다~
