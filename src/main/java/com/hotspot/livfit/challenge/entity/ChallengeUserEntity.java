@@ -28,14 +28,20 @@ public class ChallengeUserEntity {
   private User user;
 
   // 챌린지 내용 제목 가져오기
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "challenge_id", referencedColumnName = "id")
   private ChallengeEntity challenge;
   // 챌린지 시작한 날짜
   @Column(name = "started_at")
   private LocalDateTime startedAt;
 
+  @Column(name = "loginid")
+  private String loginId;
+
   // 성공 실패 여부
   @Column(name = "success")
   private String success;
+
+  @Column(name = "title")
+  private String title;
 }

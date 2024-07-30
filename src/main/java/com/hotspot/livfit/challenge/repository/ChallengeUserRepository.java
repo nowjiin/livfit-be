@@ -9,8 +9,6 @@ import org.springframework.data.repository.query.Param;
 import com.hotspot.livfit.challenge.entity.ChallengeUserEntity;
 
 public interface ChallengeUserRepository extends JpaRepository<ChallengeUserEntity, Long> {
-
-  // 챌린지 기록 loginid 로 찾기
-  @Query("SELECT s FROM ChallengeUserEntity  s WHERE s.user.loginId = :loginId")
+  @Query("SELECT cu FROM ChallengeUserEntity cu WHERE cu.user.loginId = :loginId")
   List<ChallengeUserEntity> findByLoginId(@Param("loginId") String loginId);
 }

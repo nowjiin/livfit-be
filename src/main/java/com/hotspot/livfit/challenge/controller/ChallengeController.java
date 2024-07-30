@@ -7,10 +7,13 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hotspot.livfit.challenge.dto.ChallengeDTO;
 import com.hotspot.livfit.challenge.entity.ChallengeEntity;
 import com.hotspot.livfit.challenge.entity.ChallengeUserEntity;
 import com.hotspot.livfit.challenge.repository.ChallengeUserRepository;
@@ -27,6 +30,8 @@ public class ChallengeController {
   private final ChallengeService challengeService;
   private final JwtUtil jwtUtil;
   private final ChallengeUserRepository challengeUserRepository;
+  private static final Logger logger = LoggerFactory.getLogger(ChallengeController.class);
+
   /*
    * URL: api/challenge/show/all
    * HTTP Method: GET
@@ -52,13 +57,17 @@ public class ChallengeController {
     Optional<ChallengeEntity> challenge = challengeService.getChallenge(id);
     return challenge.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
+  /*
+   * URL: api/challenge/save_challenge
+   * HTTP Method: POST
+   * 토큰 필요 0
+   *
+   */
 
-  // 챌린지 기록 저장하기 (성공 실패 여부)
   // 챌린지 기록 저장하기 (성공 실패 여부)
   @PostMapping("/save_challenge")
   public ResponseEntity<?> saveChallenge(
-      @RequestHeader("Authorization") String bearerToken,
-      @RequestBody ChallengeUserEntity challengeUserEntity) {
+      @RequestHeader("Authorization") String bearerToken, @RequestBody ChallengeDTO challengeDTO) {
 
     if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -71,24 +80,16 @@ public class ChallengeController {
 
     try {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
-      String jwtLoginId = claims.getId(); // JWT에서 사용자 ID를 추출
+      String jwtLoginId = claims.getId();
+      String challengeTitle = challengeDTO.getTitle();
       LocalDateTime startedAt = LocalDateTime.now();
+      String success = challengeDTO.getSuccess();
 
-      log.info("Received challengeUserEntity: {}", challengeUserEntity);
-      log.info("Challenge ID: {}", challengeUserEntity.getChallenge().getId());
-      log.info("Challenge Title: {}", challengeUserEntity.getChallenge().getTitle());
-      log.info("User ID: {}", challengeUserEntity.getUser().getId());
-      log.info("Success: {}", challengeUserEntity.getSuccess());
-
-      // ChallengeUserEntity에서 ChallengeEntity의 ID를 가져옴
-      Long challengeId = challengeUserEntity.getChallenge().getId();
-
-      // ChallengeService를 통해 챌린지 기록을 저장
       ChallengeUserEntity savedChallenge =
-          challengeService.saveChallenge(
-              jwtLoginId, challengeId, startedAt, challengeUserEntity.getSuccess());
+          challengeService.saveChallenge(jwtLoginId, challengeTitle, startedAt, success);
 
       return ResponseEntity.ok(savedChallenge);
+
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("An error occurred while saving the challenge record: " + e.getMessage());
@@ -96,8 +97,7 @@ public class ChallengeController {
   }
   // 마이페이지 챌린지 기록 가져오기 (성공, 실패, 진행중)
   @GetMapping("/get_challenge_record")
-  public ResponseEntity<List<ChallengeUserEntity>> getAllRecords(
-      @RequestHeader("Authorization") String bearerToken) {
+  public ResponseEntity<?> getAllRecords(@RequestHeader("Authorization") String bearerToken) {
     try {
       // Bearer 토큰에서 JWT 추출
       String token = bearerToken.substring(7);
@@ -107,9 +107,9 @@ public class ChallengeController {
       String jwtLoginId = claims.getId();
 
       // 로그인 아이디로 사용자 챌린지 기록 조회
-      List<ChallengeUserEntity> challengeEntities =
-          challengeService.getChallengeUserById(jwtLoginId);
+      List<ChallengeDTO> challengeEntities = challengeService.getChallengeUserById(jwtLoginId);
       return ResponseEntity.ok(challengeEntities);
+
     } catch (RuntimeException e) {
       log.error(
           "Error during fetching Lunge records in controller /api/lunge/get_my_record: {}",

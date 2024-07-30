@@ -54,7 +54,7 @@ public class SecurityConfig {
                         "/api/squat/**",
                         "/api/points/**",
                         "/api/challenge/**",
-                            "/api/mypage/**",
+                        "/api/mypage/**",
                         "/api/today_exercise/**",
                         "api/turtle/**")
                     .permitAll()
