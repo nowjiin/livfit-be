@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.hotspot.livfit.challenge.entity.Challenge;
+import com.hotspot.livfit.challenge.entity.ChallengeEntity;
 import com.hotspot.livfit.challenge.repository.ChallengeRepository;
 import com.hotspot.livfit.exercise.entity.LungeEntity;
 import com.hotspot.livfit.exercise.entity.PushupEntity;
@@ -52,10 +52,16 @@ public class MyPageService {
     List<LungeEntity> lunges = lungeRepository.findByLoginId(loginId);
     List<PushupEntity> pushups = pushupRepository.findByLoginId(loginId);
     List<SquatEntity> squats = squatRepository.findByLoginId(loginId);
-    List<Challenge> challenges = challengeRepository.findAllChallenges();
+    List<ChallengeEntity> challengeEntities = challengeRepository.findAllChallenges();
 
     return new MyPageResponseDTO(
-        user.getLoginId(), user.getNickname(), totalPoints, lunges, pushups, squats, challenges);
+        user.getLoginId(),
+        user.getNickname(),
+        totalPoints,
+        lunges,
+        pushups,
+        squats,
+        challengeEntities);
   }
 
   // 닉네임 업데이트
