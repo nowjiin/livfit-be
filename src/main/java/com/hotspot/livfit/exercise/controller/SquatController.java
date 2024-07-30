@@ -99,7 +99,6 @@ public class SquatController {
 
       // 로그인 아이디로 사용자 운동 가져오기
       List<SquatDTO> squatRecords = exerciseService.getAllSquatByLoginId(jwtLoginId);
-      System.out.println(squatRecords);
       return ResponseEntity.ok(squatRecords);
     } catch (RuntimeException e) {
       log.error(

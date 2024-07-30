@@ -96,7 +96,6 @@ public class LungeController {
 
       // 로그인 아이디로 사용자 운동 가져오기
       List<LungeDTO> lungerecords = exerciseService.getAllLungeByLoginId(jwtLoginId);
-      System.out.println(lungerecords);
       return ResponseEntity.ok(lungerecords);
     } catch (RuntimeException e) {
       log.error(

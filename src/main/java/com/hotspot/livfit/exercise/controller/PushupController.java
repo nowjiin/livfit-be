@@ -99,7 +99,6 @@ public class PushupController {
 
       // 로그인 아이디로 사용자 운동 가져오기
       List<PushupDTO> pushuprecords = exerciseService.getAllPushupByLoginId(jwtLoginId);
-      System.out.println(pushuprecords);
       return ResponseEntity.ok(pushuprecords);
     } catch (RuntimeException e) {
       log.error(
