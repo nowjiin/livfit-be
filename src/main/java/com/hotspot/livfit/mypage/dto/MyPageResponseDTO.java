@@ -7,11 +7,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import com.hotspot.livfit.challenge.entity.ChallengeEntity;
-import com.hotspot.livfit.exercise.entity.LungeEntity;
-import com.hotspot.livfit.exercise.entity.PushupEntity;
-import com.hotspot.livfit.exercise.entity.SquatEntity;
+import com.hotspot.livfit.exercise.dto.LungeDTO;
+import com.hotspot.livfit.exercise.dto.PushupDTO;
+import com.hotspot.livfit.exercise.dto.SquatDTO;
 
-// 우선 이정도로만 넣어놓았고 더 필요할 시 추가
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,8 +18,9 @@ public class MyPageResponseDTO {
   private String loginId;
   private String nickname;
   private int totalPoints;
-  private List<LungeEntity> lunges;
-  private List<PushupEntity> pushups;
-  private List<SquatEntity> squats;
+  private int badgeCount; // 사용자가 소유한 뱃지 개수 추가
+  private List<LungeDTO> lunges; // Entity -> DTO로 변경
+  private List<PushupDTO> pushups; // Entity -> DTO로 변경
+  private List<SquatDTO> squats; // Entity -> DTO로 변경
   private List<ChallengeEntity> challengeEntities;
 }
