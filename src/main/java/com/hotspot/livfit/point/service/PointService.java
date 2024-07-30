@@ -67,6 +67,7 @@ public class PointService {
               h.getUser().getId(), // ID
               h.getUser().getLoginId(), // 로그인 ID
               h.getUser().getNickname(), // 닉네임
+              h.getPoints(), // 적립 or 차감 포인트값
               h.getTotalPoints(), // 누적 포인트
               h.getType(), // 포인트 타입 (적립 or 차감)
               h.getDescription() // 포인트 설명
