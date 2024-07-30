@@ -5,6 +5,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,7 @@ import io.jsonwebtoken.JwtException;
 public class LungeController {
   private final ExerciseService exerciseService;
   private final JwtUtil jwtUtil;
+  private static final Logger logger = LoggerFactory.getLogger(LungeController.class);
 
   // 런지 기록 저장
   /*
@@ -69,6 +72,8 @@ public class LungeController {
           recordDto.getCreated_at(),
           recordDto.getGraph());
 
+      logger.info("런지 기록 저장 사용자 아이디 : {}", jwtLoginId);
+
       return ResponseEntity.ok().body("lunge record saved successfully.");
     } catch (JwtException e) {
       log.error("JWT processing error: {}", e.getMessage());
@@ -94,6 +99,8 @@ public class LungeController {
       // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 운동 기록 가져오기
       String jwtLoginId = claims.getId();
 
+      logger.info("런지 기록 조회, 사용자 아이디: {}", jwtLoginId);
+
       // 로그인 아이디로 사용자 운동 가져오기
       List<LungeDTO> lungerecords = exerciseService.getAllLungeByLoginId(jwtLoginId);
       return ResponseEntity.ok(lungerecords);
@@ -117,6 +124,7 @@ public class LungeController {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 운동 기록 가져오기
       String jwtLoginId = claims.getId();
+      logger.info("런지 그래프 기록 조회, 사용자 아이디: {}", jwtLoginId);
 
       List<LungeGraphDTO> lungeEntities = exerciseService.getLungeGrpah(jwtLoginId);
       return ResponseEntity.ok(lungeEntities);
