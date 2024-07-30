@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TodayExerciseDTO {
+  private String loginId;
   private DayOfWeek dayOfWeek;
   private String success;
 }

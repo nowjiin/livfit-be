@@ -32,7 +32,7 @@ public class TodayExerciseService {
             .orElseThrow(() -> new RuntimeException("User not found with login ID: " + jwtLoginId));
 
     TodayExerciseUser todayExerciseUser = new TodayExerciseUser();
-    todayExerciseUser.setUser(user);
+    todayExerciseUser.setLoginId(user.getLoginId());
     todayExerciseUser.setDayOfWeek(dayOfWeek);
     todayExerciseUser.setSuccess(success);
 

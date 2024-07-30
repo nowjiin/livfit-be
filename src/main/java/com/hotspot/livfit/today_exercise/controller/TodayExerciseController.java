@@ -1,10 +1,13 @@
 package com.hotspot.livfit.today_exercise.controller;
 
+import java.time.DayOfWeek;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,8 @@ import io.jsonwebtoken.Claims;
 public class TodayExerciseController {
   private final TodayExerciseService todayExerciseService;
   private final JwtUtil jwtUtil;
+  private static final Logger logger = LoggerFactory.getLogger(TodayExerciseController.class);
+
   /*
    * URL: api/today_exercise/show/
    * HTTP Method: GET
@@ -49,11 +54,15 @@ public class TodayExerciseController {
       String jwtLoginId = claims.getId(); // JWT에서 사용자 ID를 추출
 
       // TodayExerciseService를 통해 오늘의 운동 기록을 저장
-      TodayExerciseUser savedExercise =
+      TodayExerciseUser todayExerciseUser =
           todayExerciseService.saveChallenge(
-              jwtLoginId, todayExerciseRequest.getDayOfWeek(), todayExerciseRequest.getSuccess());
+              jwtLoginId,
+              DayOfWeek.valueOf(todayExerciseRequest.getDayOfWeek().toString()),
+              todayExerciseRequest.getSuccess());
+      logger.info("일일 운동 기록 저장됨: {}", todayExerciseUser);
 
-      return ResponseEntity.ok(savedExercise);
+      return ResponseEntity.ok(todayExerciseUser);
+
     } catch (Exception e) {
       log.error("An error occurred while saving the today exercise record: {}", e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -21,12 +21,16 @@ public class TodayExerciseUser {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(name = "loginid")
+  private String loginId;
+
   // 개인이 여러개 기록 가지고 있으므로
   @ManyToOne
   @JoinColumn(name = "user_id", referencedColumnName = "id")
   private User user;
 
   // 요일
+  @Enumerated(EnumType.STRING)
   @Column(name = "day_of_week")
   private DayOfWeek dayOfWeek;
 
