@@ -1,5 +1,7 @@
 package com.hotspot.livfit.mypage.controller;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.hotspot.livfit.badge.dto.MainBadgeRequestDTO;
 import com.hotspot.livfit.badge.service.UserBadgeService;
+import com.hotspot.livfit.challenge.dto.UserChallengeResponseDTO;
 import com.hotspot.livfit.mypage.dto.NicknameUpdateRequestDTO;
 import com.hotspot.livfit.mypage.service.MyPageService;
 import com.hotspot.livfit.user.util.JwtUtil;
@@ -123,6 +126,25 @@ public class MyPageController {
     } catch (RuntimeException e) {
       log.error(
           "Error during setting main badge in MyPage controller /api/mypage/set-main-badge: {}",
+          e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  // 사용자의 모든 챌린지 기록 조회
+  @Operation(summary = "사용자의 모든 챌린지 기록 조회", description = "사용자가 참여한 모든 챌린지 기록을 조회")
+  @GetMapping("/challenges")
+  public ResponseEntity<?> getUserChallenges(@RequestHeader("Authorization") String bearerToken) {
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String loginId = claims.getId();
+
+      List<UserChallengeResponseDTO> userChallenges = myPageService.getUserChallenges(loginId);
+      return ResponseEntity.ok(userChallenges);
+    } catch (RuntimeException e) {
+      log.error(
+          "Error during fetching user challenges in controller /api/mypage/challenges: {}",
           e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }

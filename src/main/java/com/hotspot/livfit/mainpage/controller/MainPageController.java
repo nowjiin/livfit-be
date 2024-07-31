@@ -1,5 +1,7 @@
 package com.hotspot.livfit.mainpage.controller;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hotspot.livfit.challenge.dto.UserChallengeResponseDTO;
+import com.hotspot.livfit.challenge.service.ChallengeService;
 import com.hotspot.livfit.mainpage.dto.MainPageDTO;
 import com.hotspot.livfit.mainpage.service.MainPageService;
 import com.hotspot.livfit.today_exercise.entity.TodayExercise;
@@ -27,6 +31,7 @@ public class MainPageController {
   private final JwtUtil jwtUtil;
   private final MainPageService mainPageService;
   private final UserRepository userRepository;
+  private final ChallengeService challengeService;
 
   @Operation(summary = "일주일 달성률 확인 (???)", description = "달성한 요일 체크표시")
   @GetMapping("/get-achievement-rate")
@@ -48,7 +53,7 @@ public class MainPageController {
   }
 
   @Operation(summary = "닉네임 조회", description = "사용자 닉네임 조회")
-  @GetMapping("/nickname")
+  @GetMapping("/getname")
   public ResponseEntity<?> getNickname(@RequestHeader("Authorization") String bearerToken) {
     try {
       String token = bearerToken.substring(7);
@@ -70,7 +75,7 @@ public class MainPageController {
   }
 
   @Operation(summary = "오늘의 운동 조회", description = "오늘의 운동을 랜덤으로 1개 조회")
-  @GetMapping("/random-today-exercise")
+  @GetMapping("/getTodayexercise")
   public ResponseEntity<?> getRandomTodayExercise() {
     try {
       TodayExercise todayExercise = mainPageService.getRandomTodayExercise();
@@ -81,6 +86,30 @@ public class MainPageController {
           e.getMessage());
       return ResponseEntity.badRequest()
           .body("Error retrieving random today exercise: " + e.getMessage());
+    }
+  }
+
+  @Operation(summary = "현재 진행중인 챌린지 조회", description = "사용자가 참여하고 있는 진행중인 챌린지 목록 조회")
+  @GetMapping("/getchallenges")
+  public ResponseEntity<?> getOngoingChallenges(
+      @RequestHeader("Authorization") String bearerToken) {
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String loginId = claims.getId();
+
+      log.info("진행중인 챌린지를 조회하는 사용자 아이디: {}", loginId);
+
+      // mainPageService를 사용하여 진행중인 챌린지 조회
+      List<UserChallengeResponseDTO> ongoingChallenges =
+          mainPageService.getOngoingChallenges(loginId);
+      return ResponseEntity.ok(ongoingChallenges);
+    } catch (Exception e) {
+      log.error(
+          "Error during fetching ongoing challenges in controller /api/mainpage/ongoing-challenges: {}",
+          e.getMessage());
+      return ResponseEntity.badRequest()
+          .body("Error retrieving ongoing challenges: " + e.getMessage());
     }
   }
 }

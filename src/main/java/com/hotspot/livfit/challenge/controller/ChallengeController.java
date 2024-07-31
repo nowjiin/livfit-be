@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.hotspot.livfit.challenge.dto.*;
-import com.hotspot.livfit.challenge.repository.ChallengeRepository;
-import com.hotspot.livfit.challenge.repository.UserChallengeStatusRepository;
 import com.hotspot.livfit.challenge.service.ChallengeService;
-import com.hotspot.livfit.user.repository.UserRepository;
 import com.hotspot.livfit.user.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
