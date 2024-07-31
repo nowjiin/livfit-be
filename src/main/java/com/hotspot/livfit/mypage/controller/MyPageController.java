@@ -1,5 +1,7 @@
 package com.hotspot.livfit.mypage.controller;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.hotspot.livfit.badge.dto.MainBadgeRequestDTO;
 import com.hotspot.livfit.badge.service.UserBadgeService;
-import com.hotspot.livfit.mypage.dto.MyPageResponseDTO;
+import com.hotspot.livfit.challenge.dto.UserChallengeResponseDTO;
 import com.hotspot.livfit.mypage.dto.NicknameUpdateRequestDTO;
 import com.hotspot.livfit.mypage.service.MyPageService;
 import com.hotspot.livfit.user.util.JwtUtil;
@@ -26,19 +28,59 @@ public class MyPageController {
   private final UserBadgeService userBadgeService;
   private final JwtUtil jwtUtil;
 
-  // 마이페이지 정보 조회
-  @Operation(summary = "마이페이지 정보 조회", description = "사용자의 마이페이지 정보를 조회")
-  @GetMapping
-  public ResponseEntity<?> getMyPageInfo(@RequestHeader("Authorization") String bearerToken) {
+  // 누적 포인트 조회
+  @Operation(summary = "누적 포인트 조회", description = "사용자의 누적 포인트를 조회")
+  @GetMapping("/points")
+  public ResponseEntity<?> getTotalPoints(@RequestHeader("Authorization") String bearerToken) {
     try {
       String token = bearerToken.substring(7);
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       String loginId = claims.getId();
 
-      MyPageResponseDTO response = myPageService.getMyPageInfo(loginId);
-      return ResponseEntity.ok(response);
+      int totalPoints = myPageService.getTotalPoints(loginId);
+      return ResponseEntity.ok(totalPoints);
     } catch (RuntimeException e) {
-      log.error("Error during fetching my page info in controller /api/mypage: {}", e.getMessage());
+      log.error(
+          "Error during fetching total points in controller /api/mypage/points: {}",
+          e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  // 뱃지 개수 조회
+  @Operation(summary = "뱃지 개수 조회", description = "사용자의 뱃지 개수를 조회")
+  @GetMapping("/badges/count")
+  public ResponseEntity<?> getBadgeCount(@RequestHeader("Authorization") String bearerToken) {
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String loginId = claims.getId();
+
+      int badgeCount = myPageService.getBadgeCount(loginId);
+      return ResponseEntity.ok(badgeCount);
+    } catch (RuntimeException e) {
+      log.error(
+          "Error during fetching badge count in controller /api/mypage/badges/count: {}",
+          e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  // 메인 뱃지 조회
+  @Operation(summary = "메인 뱃지 조회", description = "사용자의 메인 뱃지를 조회")
+  @GetMapping("/badges/main")
+  public ResponseEntity<?> getMainBadgeId(@RequestHeader("Authorization") String bearerToken) {
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String loginId = claims.getId();
+
+      String mainBadgeId = myPageService.getMainBadgeId(loginId);
+      return ResponseEntity.ok(mainBadgeId);
+    } catch (RuntimeException e) {
+      log.error(
+          "Error during fetching main badge in controller /api/mypage/badges/main: {}",
+          e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
@@ -84,6 +126,25 @@ public class MyPageController {
     } catch (RuntimeException e) {
       log.error(
           "Error during setting main badge in MyPage controller /api/mypage/set-main-badge: {}",
+          e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  // 사용자의 모든 챌린지 기록 조회
+  @Operation(summary = "사용자의 모든 챌린지 기록 조회", description = "사용자가 참여한 모든 챌린지 기록을 조회")
+  @GetMapping("/challenges")
+  public ResponseEntity<?> getUserChallenges(@RequestHeader("Authorization") String bearerToken) {
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String loginId = claims.getId();
+
+      List<UserChallengeResponseDTO> userChallenges = myPageService.getUserChallenges(loginId);
+      return ResponseEntity.ok(userChallenges);
+    } catch (RuntimeException e) {
+      log.error(
+          "Error during fetching user challenges in controller /api/mypage/challenges: {}",
           e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }

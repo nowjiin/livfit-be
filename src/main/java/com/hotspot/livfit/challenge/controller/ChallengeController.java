@@ -1,6 +1,5 @@
 package com.hotspot.livfit.challenge.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,11 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.hotspot.livfit.challenge.dto.ChallengeDTO;
-import com.hotspot.livfit.challenge.dto.UserChallengeDTO;
-import com.hotspot.livfit.challenge.entity.ChallengeEntity;
-import com.hotspot.livfit.challenge.entity.ChallengeUserEntity;
-import com.hotspot.livfit.challenge.repository.ChallengeUserRepository;
+import com.hotspot.livfit.challenge.dto.*;
 import com.hotspot.livfit.challenge.service.ChallengeService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
@@ -30,102 +25,114 @@ public class ChallengeController {
 
   private final ChallengeService challengeService;
   private final JwtUtil jwtUtil;
-  private final ChallengeUserRepository challengeUserRepository;
 
-  /*
-   * URL: api/challenge/show/all
-   * HTTP Method: GET
-   * 토큰 필요 x
-   */
-
-  //  프론트 엔드가 사용하게 전체 리스트
+  // 모든 챌린지 조회
   @Operation(summary = "전체 챌린지 조회", description = "모든 챌린지 목록 조회")
-  @GetMapping("/show/all")
-  public ResponseEntity<List<ChallengeEntity>> getAllChallenge() {
-    List<ChallengeEntity> challengeEntity = challengeService.findAllChallenges();
-    return ResponseEntity.ok(challengeEntity);
+  @GetMapping("/list")
+  public ResponseEntity<List<ChallengeSummaryDTO>> getAllChallenges() {
+    List<ChallengeSummaryDTO> challengeList = challengeService.findAllChallenges();
+    return ResponseEntity.ok(challengeList);
   }
 
-  /*
-   * URL: api/challenge/show/all
-   * HTTP Method: GET
-   * 토큰 필요 x
-   */
-
-  // 번호에 맞춰서 프론트 엔드가 사용하게
-  @Operation(summary = "특정 챌린지 조회", description = "ID로 특정 챌린지 조회")
-  @GetMapping("/show/{id}")
-  public ResponseEntity<ChallengeEntity> getChallenge(@PathVariable Long id) {
-    Optional<ChallengeEntity> challenge = challengeService.getChallenge(id);
+  // ID로 특정 챌린지 조회
+  @Operation(summary = "ID로 챌린지 조회", description = "특정 챌린지의 상세 정보 조회")
+  @GetMapping("/detail/{id}")
+  public ResponseEntity<ChallengeDetailDTO> getChallenge(@PathVariable Long id) {
+    Optional<ChallengeDetailDTO> challenge = challengeService.getChallenge(id);
     return challenge.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
-  /*
-   * URL: api/challenge/save_challenge
-   * HTTP Method: POST
-   * 토큰 필요 0
-   *
-   */
 
-  // 챌린지 기록 저장하기 (성공 실패 여부)
-  @Operation(summary = "챌린지 기록 저장", description = "사용자가 수행한 챌린지의 성공/실패 여부 저장")
-  @PostMapping("/save_challenge")
-  public ResponseEntity<?> saveChallenge(
-      @RequestHeader("Authorization") String bearerToken, @RequestBody ChallengeDTO challengeDTO) {
+  // 사용자의 챌린지 기록 조회
+  @Operation(summary = "사용자 챌린지 기록 조회", description = "사용자의 모든 챌린지 기록 조회")
+  @GetMapping("/user")
+  public ResponseEntity<List<UserChallengeResponseDTO>> getUserChallenges(
+      @RequestHeader("Authorization") String bearerToken) {
 
-    if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Invalid Authorization header format.");
-    }
-    String token = bearerToken.substring(7).trim();
-    if (token.isEmpty() || token.split("\\.").length != 3) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid JWT token format.");
-    }
+    String token = bearerToken.substring(7);
+    Claims claims = jwtUtil.getAllClaimsFromToken(token);
+    String loginId = claims.getId();
 
+    List<UserChallengeResponseDTO> userChallenges = challengeService.getUserChallenges(loginId);
+    return ResponseEntity.ok(userChallenges);
+  }
+
+  // 챌린지 상태 업데이트 (성공/실패 여부)
+  @Operation(summary = "챌린지 상태 업데이트", description = "사용자의 챌린지 상태를 업데이트 (성공/실패 여부)")
+  @PutMapping("/update-status")
+  public ResponseEntity<?> updateChallengeStatus(
+      @RequestHeader("Authorization") String bearerToken,
+      @RequestBody UserChallengeUpdateRequestDTO dto) {
     try {
+      String token = bearerToken.substring(7);
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
-      String jwtLoginId = claims.getId();
-      String challengeTitle = challengeDTO.getTitle();
-      LocalDateTime startedAt = LocalDateTime.now();
-      String success = challengeDTO.getSuccess();
+      String loginId = claims.getId();
 
-      ChallengeUserEntity savedChallenge =
-          challengeService.saveChallenge(jwtLoginId, challengeTitle, startedAt, success);
-
-      return ResponseEntity.ok(savedChallenge);
-
+      boolean updated = challengeService.updateChallengeStatus(loginId, dto);
+      if (updated) {
+        return ResponseEntity.ok("Challenge status updated successfully.");
+      } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Challenge status update failed.");
+      }
     } catch (Exception e) {
+      log.error("Error during updating challenge status: {}", e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("An error occurred while saving the challenge record: " + e.getMessage());
+          .body("Error updating challenge status: " + e.getMessage());
     }
   }
-  // 마이페이지 챌린지 기록 가져오기 (성공, 실패, 진행중)
-  @Operation(summary = "사용자 챌린지 기록 조회", description = "사용자의 모든 챌린지 기록 조회")
-  @GetMapping("/get_challenge_record")
-  public ResponseEntity<?> getAllRecords(@RequestHeader("Authorization") String bearerToken) {
+
+  // 챌린지 참여하기
+  @Operation(summary = "챌린지 참여", description = "사용자가 특정 챌린지에 참여")
+  @PostMapping("/participate")
+  public ResponseEntity<?> participateInChallenge(
+      @RequestHeader("Authorization") String bearerToken,
+      @RequestBody UserChallengeRequestDTO dto) {
     try {
-      // Bearer 토큰에서 JWT 추출
       String token = bearerToken.substring(7);
-      // 모든 클레임 추출
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
-      // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 챌린지 가져오기
-      String jwtLoginId = claims.getId();
+      String loginId = claims.getId();
 
-      // 로그인 아이디로 사용자 챌린지 기록 조회
-      List<UserChallengeDTO> userChallenges = challengeService.getChallengeUserById(jwtLoginId);
+      // 서비스 메서드 호출
+      String result = challengeService.participateInChallenge(loginId, dto.getChallengeId());
 
-      if (userChallenges == null || userChallenges.isEmpty()) {
-        log.info("조회된 챌린지 없음 | loginId: {}", jwtLoginId);
-      } else {
-        log.info("{}개의 챌린지 조회 완료. | loginId: {}", userChallenges.size(), jwtLoginId);
+      if ("Already participating in this challenge.".equals(result)) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
       }
 
-      return ResponseEntity.ok(userChallenges);
+      return ResponseEntity.ok(result);
+    } catch (Exception e) {
+      log.error("Error during participating in challenge: {}", e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("Error participating in challenge: " + e.getMessage());
+    }
+  }
 
-    } catch (RuntimeException e) {
-      log.error(
-          "Error during fetching challenge records in controller /api/challenge/get_challenge_record: {}",
-          e.getMessage());
-      return ResponseEntity.status(500).body(null);
+  // 진행중인 챌린지 (status : 0)
+  @Operation(summary = "진행중인 챌린지 조회", description = "사용자가 진행중인 모든 챌린지 조회 (status가 0인 챌린지만 조회)")
+  @GetMapping("/in-progress")
+  public ResponseEntity<?> getInProgressChallenges(
+      @RequestHeader("Authorization") String bearerToken) {
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String loginId = claims.getId();
+
+      List<UserChallengeResponseDTO> inProgressChallenges =
+          challengeService.getInProgressChallenges(loginId);
+
+      if (inProgressChallenges.isEmpty()) {
+        log.info("No in-progress challenges found for user: {}", loginId);
+        return ResponseEntity.ok("No in-progress challenges found.");
+      } else {
+        log.info(
+            "Retrieved {} in-progress challenges for user: {}",
+            inProgressChallenges.size(),
+            loginId);
+        return ResponseEntity.ok(inProgressChallenges);
+      }
+    } catch (Exception e) {
+      log.error("Error fetching in-progress challenges: {}", e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("Error fetching in-progress challenges: " + e.getMessage());
     }
   }
 }

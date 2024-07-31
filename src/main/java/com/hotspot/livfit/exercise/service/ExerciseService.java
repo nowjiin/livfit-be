@@ -17,7 +17,6 @@ import com.hotspot.livfit.exercise.repository.PushupRepository;
 import com.hotspot.livfit.exercise.repository.SquatRepository;
 import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
-import com.hotspot.livfit.user.util.JwtUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +25,19 @@ public class ExerciseService {
   private final PushupRepository pushupRepository;
   private final SquatRepository squatRepository;
   private final UserRepository userRepository;
-  private final JwtUtil jwtUtil;
+
+  // 그래프 계산 함수
+  public static double calculatePerformance(
+      int count, Long timerSec, int perfect, int great, int good) {
+    // 효율성 계산
+    double efficiency = timerSec > 0 ? (double) count / timerSec : 0.0; // 0으로 나누는 경우를 방지
+
+    // 품질 점수 계산 (가중치 적용)
+    double quality = (perfect * 3) + (great * 2) + good;
+
+    // 종합 성과 지표 계산
+    return efficiency + quality;
+  }
 
   // 런지 기록 저장 로직
   public LungeEntity saveRecordLunge(
@@ -37,8 +48,7 @@ public class ExerciseService {
       int good,
       int great,
       LocalDateTime created_at,
-      int set,
-      Double graph) {
+      int set) {
 
     User user =
         userRepository
@@ -54,18 +64,9 @@ public class ExerciseService {
     lungeEntity.setGood(good);
     lungeEntity.setGreat(great);
     lungeEntity.setCreated_at(created_at);
-    lungeEntity.setGraph(graph);
 
-    // 효율성 점수 계산 (운동 개수 / 시간)
-    double efficiency = timerSec > 0 ? (double) count / timerSec : 0.0; // 0으로 나누는 경우를 방지
-
-    // 품질 점수 계산 (가중치 적용)
-    int quality = (perfect * 3) + (great * 2) + good;
-
-    // 종합 성과 지표 계산
-    graph = efficiency + quality;
-
-    // 종합 성과 지표 설정
+    // 성과 지표 계산
+    double graph = calculatePerformance(count, timerSec, perfect, great, good);
     lungeEntity.setGraph(graph);
 
     return lungeRepository.save(lungeEntity);
@@ -77,6 +78,7 @@ public class ExerciseService {
     return lungeEntities.stream().map(this::convertToLungeDTO).collect(Collectors.toList());
   }
 
+  // DTO로 변환하기
   private LungeDTO convertToLungeDTO(LungeEntity entity) {
     LungeDTO dto = new LungeDTO();
     dto.setExercise_set((entity.getExercise_set()));
@@ -105,8 +107,7 @@ public class ExerciseService {
       int good,
       int great,
       int set,
-      LocalDateTime created_at,
-      Double graph) {
+      LocalDateTime created_at) {
 
     User user =
         userRepository
@@ -122,18 +123,9 @@ public class ExerciseService {
     pushupEntity.setGood(good);
     pushupEntity.setGreat(great);
     pushupEntity.setCreated_at(created_at);
-    pushupEntity.setGraph(graph);
 
-    // 효율성 점수 계산 (운동 개수 / 시간)
-    double efficiency = timerSec > 0 ? (double) count / timerSec : 0.0; // 0으로 나누는 경우를 방지
-
-    // 품질 점수 계산 (가중치 적용)
-    int quality = (perfect * 3) + (great * 2) + good;
-
-    // 종합 성과 지표 계산
-    graph = efficiency + quality;
-
-    // 종합 성과 지표 설정
+    // 성과 지표 계산
+    double graph = calculatePerformance(count, timerSec, perfect, great, good);
     pushupEntity.setGraph(graph);
 
     return pushupRepository.save(pushupEntity);
@@ -145,6 +137,7 @@ public class ExerciseService {
     return pushupEntities.stream().map(this::convertToPushupDTO).collect(Collectors.toList());
   }
 
+  // DTO로 변경하기
   private PushupDTO convertToPushupDTO(PushupEntity entity) {
     PushupDTO dto = new PushupDTO();
     dto.setLogin_id(entity.getUser().getLoginId());
@@ -173,8 +166,7 @@ public class ExerciseService {
       int good,
       int great,
       LocalDateTime created_at,
-      int set,
-      Double graph) {
+      int set) {
 
     User user =
         userRepository
@@ -190,28 +182,20 @@ public class ExerciseService {
     squatEntity.setGood(good);
     squatEntity.setGreat(great);
     squatEntity.setCreated_at(created_at);
+
+    // 성과 지표 계산
+    double graph = calculatePerformance(count, timerSec, perfect, great, good);
     squatEntity.setGraph(graph);
-
-    // 효율성 점수 계산 (운동 개수 / 시간)
-    double efficiency = timerSec > 0 ? (double) count / timerSec : 0.0; // 0으로 나누는 경우를 방지
-
-    // 품질 점수 계산 (가중치 적용)
-    int quality = (perfect * 3) + (great * 2) + good;
-
-    // 종합 성과 지표 계산
-    graph = efficiency + quality;
-
-    // 종합 성과 지표 설정
-    squatEntity.setGraph(graph);
-
     return squatRepository.save(squatEntity);
   }
 
+  // 스쿼트 아이디로 기록 조회하기
   public List<SquatDTO> getAllSquatByLoginId(String loginId) {
     List<SquatEntity> squatEntities = squatRepository.findByLoginId(loginId); // 조회 로직
     return squatEntities.stream().map(this::convertToDTO).collect(Collectors.toList());
   }
 
+  // DTO로 변경하기
   private SquatDTO convertToDTO(SquatEntity entity) {
     SquatDTO dto = new SquatDTO();
     dto.setLogin_id(entity.getUser().getLoginId());
