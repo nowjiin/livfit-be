@@ -34,9 +34,9 @@ public class MyPageService {
   @Transactional(readOnly = true)
   public MyPageResponseDTO getMyPageInfo(String loginId) {
     User user =
-            userRepository
-                    .findByLoginId(loginId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
     // 특정 사용자 ID의 누적 포인트 히스토리 조회하고
     int totalPoints = 0;
@@ -53,7 +53,7 @@ public class MyPageService {
     int badgeCount = userBadgeRepository.countByLoginId(loginId);
 
     return new MyPageResponseDTO(
-            user.getLoginId(), user.getNickname(), totalPoints, badgeCount, challengeEntities);
+        user.getLoginId(), user.getNickname(), totalPoints, badgeCount, challengeEntities);
   }
 
   // LungeEntity를 LungeDTO로 변환
@@ -102,9 +102,9 @@ public class MyPageService {
   @Transactional
   public void updateNickname(String loginId, String newNickname) {
     User user =
-            userRepository
-                    .findByLoginId(loginId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     user.setNickname(newNickname);
     userRepository.save(user);
   }

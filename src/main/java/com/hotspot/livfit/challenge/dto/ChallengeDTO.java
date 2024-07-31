@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChallengeDTO {
-  private String loginId;
   private LocalDateTime startedAt;
   private String success;
   private String Title;
