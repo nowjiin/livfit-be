@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +19,8 @@ import com.hotspot.livfit.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PointService {
-  private static final Logger logger = LoggerFactory.getLogger(PointService.class);
 
   private final PointHistoryRepository pointHistoryRepository;
   private final UserRepository userRepository;
@@ -37,17 +36,15 @@ public class PointService {
     List<PointHistory> history = pointHistoryRepository.findByUser_LoginId(loginId);
 
     // 누적포인트 계산 -> 마지막 기록의 총 누적 포인트 가져오기
-    // 이전 코드를 보니 모든 기록의 누적 포인트를 합산해서 중복 계산 문제가 발생했던 것
-    // 가장 최신 기록의 누적 포인트를 가져와서 계산하는 것으로 수정
     int totalPoints = history.isEmpty() ? 0 : history.get(history.size() - 1).getTotalPoints();
 
     // 포인트 적립 or 차감 계산
     if (pointRequestDTO.getType().equals("earn")) { // 적립
       totalPoints += pointRequestDTO.getPoints();
-      logger.info("User: {} | {}p Earn", loginId, pointRequestDTO.getPoints());
+      log.info("User: {} | {}p Earn", loginId, pointRequestDTO.getPoints());
     } else if (pointRequestDTO.getType().equals("spend")) { // 차감
       totalPoints -= pointRequestDTO.getPoints();
-      logger.info("User: {} | {}p Spend", loginId, pointRequestDTO.getPoints());
+      log.info("User: {} | {}p Spend", loginId, pointRequestDTO.getPoints());
     }
 
     PointHistory pointHistory = new PointHistory();
@@ -59,25 +56,24 @@ public class PointService {
     pointHistory.setDescription(pointRequestDTO.getDescription()); // 포인트 적립/차감에 대한 설명
     pointHistoryRepository.save(pointHistory);
 
-    logger.info("{}'s Total Points: {}p", loginId, totalPoints);
+    log.info("{}'s Total Points: {}p", loginId, totalPoints);
   }
 
   // 특정 사용자의 포인트 히스토리 조회
   public List<PointHistoryDTO> getPointHistory(String loginId) {
-    logger.info("Point history for user with login ID: {}", loginId);
+    log.info("Point history for user with login ID: {}", loginId);
 
     // 사용자 로그인 ID를 사용하여 해당 사용자의 포인트 히스토리 조회
     List<PointHistory> history = pointHistoryRepository.findByUser_LoginId(loginId);
 
     if (history.isEmpty()) {
-      logger.warn("No point history found for user with login ID: {}", loginId);
+      log.warn("No point history found for user with login ID: {}", loginId);
     } else {
-      logger.info("Point history successfully retrieved for user with login ID: {}", loginId);
+      log.info("Point history successfully retrieved for user with login ID: {}", loginId);
     }
 
     // PointHistoryDTO를 담을 리스트 생성하고
     List<PointHistoryDTO> historyDTOs = new ArrayList<>();
-    // 각 포인트 히스토리 객체?를 PointHistoryDTO로 변환해서 리스트에 추가하는 로직입니다~
     for (PointHistory h : history) {
       PointHistoryDTO dto =
           new PointHistoryDTO(

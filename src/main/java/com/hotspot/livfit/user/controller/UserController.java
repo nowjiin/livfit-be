@@ -11,13 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hotspot.livfit.user.dto.AuthResponse;
-import com.hotspot.livfit.user.dto.RefreshTokenRequest;
-import com.hotspot.livfit.user.dto.UserLoginRequest;
-import com.hotspot.livfit.user.dto.UserRegistrationRequest;
-import com.hotspot.livfit.user.entity.User;
+import com.hotspot.livfit.user.dto.*;
 import com.hotspot.livfit.user.service.UserService;
 import com.hotspot.livfit.user.util.JwtUtil;
+import com.hotspot.livfit.user.util.NicknameGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
@@ -46,10 +43,12 @@ public class UserController {
   public ResponseEntity<?> registerUser(@RequestBody UserRegistrationRequest request) {
     try {
       // 회원가입 서비스 호출 (User Service 호출)
-      User user =
-          userService.registerUser(
-              request.getLoginId(), request.getPassword(), request.getNickname());
-      return ResponseEntity.ok(user);
+      // 자동으로 닉네임 생성
+      String nickname = NicknameGenerator.generateNickname();
+
+      UserRegistrationResponseDTO response =
+          userService.registerUser(request.getLoginId(), request.getPassword(), nickname);
+      return ResponseEntity.ok(response);
     } catch (RuntimeException e) {
       // 예외 발생 시 로그 출력 디버깅용
       log.error("Error during user registration in controller /api/register: {}", e.getMessage());

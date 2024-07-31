@@ -1,11 +1,11 @@
 package com.hotspot.livfit.turtle.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import com.hotspot.livfit.turtle.dto.TurtleDTO;
 import com.hotspot.livfit.turtle.entity.TurtleEntity;
 import com.hotspot.livfit.turtle.service.TurtleService;
-import com.hotspot.livfit.user.repository.UserRepository;
 import com.hotspot.livfit.user.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 
@@ -23,9 +22,8 @@ import io.jsonwebtoken.Claims;
 @Slf4j
 public class TurtleController {
 
-  @Autowired private JwtUtil jwtUtil;
-  @Autowired private UserRepository userRepository;
-  @Autowired private TurtleService turtleService;
+  private final JwtUtil jwtUtil;
+  private final TurtleService turtleService;
 
   // 거북목 기록 저장
   /*
@@ -50,7 +48,11 @@ public class TurtleController {
 
     try {
       TurtleEntity savedTurtle =
-          turtleService.saveRecord(jwtLoginId, turtleData.getNickname(), turtleData.getScore());
+          turtleService.saveRecord(
+              jwtLoginId,
+              turtleData.getNickname(),
+              turtleData.getScore(),
+              turtleData.getLocalDate());
       return ResponseEntity.ok(savedTurtle);
     } catch (RuntimeException ex) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -82,10 +84,11 @@ public class TurtleController {
       String jwtLoginId = claims.getId();
       int score = turtleData.getScore();
       String nickname = turtleData.getNickname();
+      LocalDate localDate = turtleData.getLocalDate();
 
       try {
         TurtleEntity savedTurtle =
-            turtleService.saveRecord(jwtLoginId, nickname, score); // 사용자 닉네임과 점수를 전달
+            turtleService.saveRecord(jwtLoginId, nickname, score, localDate); // 사용자 닉네임과 점수를 전달
         return ResponseEntity.ok(savedTurtle);
       } catch (RuntimeException ex) {
         log.error("Record Not Found Error: {}", ex.getMessage());
@@ -108,6 +111,15 @@ public class TurtleController {
   @GetMapping("/all-records")
   public ResponseEntity<List<TurtleDTO>> getAllRecords() {
     List<TurtleDTO> records = turtleService.findAllRecords();
+    if (records.isEmpty()) {
+      return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(records);
+  }
+
+  @GetMapping("/my-records")
+  public ResponseEntity<List<TurtleDTO>> getRecordsByNickname(@RequestParam String nickname) {
+    List<TurtleDTO> records = turtleService.getTurtleRecordsByLoginId(nickname);
     if (records.isEmpty()) {
       return ResponseEntity.noContent().build();
     }

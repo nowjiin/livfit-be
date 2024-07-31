@@ -1,5 +1,7 @@
 package com.hotspot.livfit.turtle.entity;
 
+import java.time.LocalDate;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,4 +34,8 @@ public class TurtleEntity {
   // score
   @Column(name = "score")
   private int score;
+
+  // 날짜
+  @Column(name = "date")
+  private LocalDate localDate;
 }
