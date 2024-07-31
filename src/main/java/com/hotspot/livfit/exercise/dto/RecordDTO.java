@@ -16,4 +16,5 @@ public class RecordDTO {
   private int good;
   private LocalDateTime created_at;
   private Double graph;
+  private int set;
 }

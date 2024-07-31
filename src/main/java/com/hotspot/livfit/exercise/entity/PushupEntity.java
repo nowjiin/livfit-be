@@ -56,4 +56,8 @@ public class PushupEntity {
   // 그래프의 결과값 저장
   @Column(name = "graph")
   private Double graph;
+
+  // 세트 수 저장
+  @Column(name = "set")
+  private int set;
 }
