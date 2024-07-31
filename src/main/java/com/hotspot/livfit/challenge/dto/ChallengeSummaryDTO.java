@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// 응답DTO
+// 엔티티에서 정보 필요한 것만 가져오도록 설정
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

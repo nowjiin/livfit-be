@@ -17,6 +17,6 @@ public interface UserChallengeStatusRepository extends JpaRepository<UserChallen
   // 특정 사용자와 특정 챌린지에 대한 상태를 조회
   Optional<UserChallengeStatus> findByUser_LoginIdAndChallenge_Id(String loginId, Long challengeId);
 
-  // 진행중인 챌린지를 조회하기 위한 메서드 추가
+  // 진행중인 챌린지를 조회
   List<UserChallengeStatus> findByUser_LoginIdAndStatus(String loginId, int status);
 }

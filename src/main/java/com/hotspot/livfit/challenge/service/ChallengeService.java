@@ -69,9 +69,9 @@ public class ChallengeService {
       UserChallengeResponseDTO dto =
           new UserChallengeResponseDTO(
               status.getId(),
-              status.getUser().getLoginId(), // 유저 엔티티에서 getLoginId() 메서드 필요
-              status.getChallenge().getTitle(), // 챌린지 엔티티에서 getTitle() 메서드 필요
-              status.getStatus() // 상태 정보
+              status.getUser().getLoginId(),
+              status.getChallenge().getTitle(),
+              status.getStatus() // 상태 정보 0, 1, 2 중
               );
       responseDTOList.add(dto);
     }
@@ -82,24 +82,27 @@ public class ChallengeService {
   // 챌린지 상태 업데이트 (성공/실패 여부 업데이트)
   @Transactional
   public boolean updateChallengeStatus(String loginId, UserChallengeUpdateRequestDTO dto) {
+    // 사용자의 특정 챌린지 상태를 조회
     Optional<UserChallengeStatus> statusOpt =
         userChallengeStatusRepository.findByUser_LoginIdAndChallenge_Id(
             loginId, dto.getChallengeId());
 
+    // 챌린지 상태가 존재하는 경우 업데이트
     if (statusOpt.isPresent()) {
       UserChallengeStatus status = statusOpt.get();
-      status.setStatus(dto.getStatus());
-      userChallengeStatusRepository.save(status);
-      return true;
+      status.setStatus(dto.getStatus()); // 상태 업데이트
+      userChallengeStatusRepository.save(status); // 상태 저장
+      return true; // 업데이트 성공
     } else {
-      return false;
+      return false; // 상태가 존재하지 않음
     }
   }
 
-  // 챌린지 참여
+  // 챌린지 참여 서비스 로직
   @Transactional
   public String participateInChallenge(String loginId, Long challengeId) {
     Optional<UserChallengeStatus> existingStatus =
+        // 로그인 아이디와 챌린지 아이디로 검색해서 해당 사용자가 참여중인 챌린지인지 확인
         userChallengeStatusRepository.findByUser_LoginIdAndChallenge_Id(loginId, challengeId);
 
     if (existingStatus.isPresent()) {
@@ -118,7 +121,7 @@ public class ChallengeService {
     UserChallengeStatus newStatus = new UserChallengeStatus();
     newStatus.setUser(user);
     newStatus.setChallenge(challenge);
-    newStatus.setStatus(0); // 상태를 "진행중"으로 설정
+    newStatus.setStatus(0); // 상태를 "진행중"으로 설정 (0 은 진행중 의미)
     newStatus.setStartedAt(LocalDate.now());
     newStatus.setJoinedAt(LocalDateTime.now()); // 현재 시간으로 설정
 
@@ -126,10 +129,11 @@ public class ChallengeService {
     return "Challenge participation successful.";
   }
 
+  // 참여중인 챌린지 서비스 로직
   @Transactional(readOnly = true)
   public List<UserChallengeResponseDTO> getInProgressChallenges(String loginId) {
     List<UserChallengeStatus> inProgressStatuses =
-        userChallengeStatusRepository.findByUser_LoginIdAndStatus(loginId, 0);
+        userChallengeStatusRepository.findByUser_LoginIdAndStatus(loginId, 0); // 상태가 0인 것들
     List<UserChallengeResponseDTO> responseDTOList = new ArrayList<>();
 
     for (UserChallengeStatus status : inProgressStatuses) {

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// 챌린지 상세페이지 DTO
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
