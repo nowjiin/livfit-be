@@ -58,6 +58,6 @@ public class LungeEntity {
   private Double graph;
 
   // 세트 수 저장
-  @Column(name = "set")
-  private int set;
+  @Column(name = "exercise_set")
+  private int exercise_set;
 }

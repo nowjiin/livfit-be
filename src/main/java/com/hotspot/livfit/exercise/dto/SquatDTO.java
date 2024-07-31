@@ -17,5 +17,5 @@ public class SquatDTO {
   private int good;
   private LocalDateTime created_at;
   private Double graph;
-  private int set;
+  private int exercise_set;
 }

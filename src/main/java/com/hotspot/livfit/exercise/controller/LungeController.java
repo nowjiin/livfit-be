@@ -70,7 +70,7 @@ public class LungeController {
           recordDto.getGood(),
           recordDto.getGreat(),
           recordDto.getCreated_at(),
-          recordDto.getSet(),
+          recordDto.getExercise_set(),
           recordDto.getGraph());
 
       logger.info("런지 기록 저장 사용자 아이디 : {}", jwtLoginId);

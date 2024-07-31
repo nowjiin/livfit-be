@@ -46,7 +46,7 @@ public class ExerciseService {
             .orElseThrow(() -> new RuntimeException("User not found with login ID: " + jwtLoginId));
 
     LungeEntity lungeEntity = new LungeEntity();
-    lungeEntity.setSet(set);
+    lungeEntity.setExercise_set(set);
     lungeEntity.setUser(user);
     lungeEntity.setTimer_sec(timerSec);
     lungeEntity.setCount(count);
@@ -79,7 +79,7 @@ public class ExerciseService {
 
   private LungeDTO convertToLungeDTO(LungeEntity entity) {
     LungeDTO dto = new LungeDTO();
-    dto.setSet((entity.getSet()));
+    dto.setExercise_set((entity.getExercise_set()));
     dto.setLogin_id(entity.getUser().getLoginId());
     dto.setTimer_sec(entity.getTimer_sec());
     dto.setCount(entity.getCount());
@@ -115,7 +115,7 @@ public class ExerciseService {
 
     PushupEntity pushupEntity = new PushupEntity();
     pushupEntity.setUser(user);
-    pushupEntity.setSet(set);
+    pushupEntity.setExercise_set(set);
     pushupEntity.setTimer_sec(timerSec);
     pushupEntity.setCount(count);
     pushupEntity.setPerfect(perfect);
@@ -148,7 +148,7 @@ public class ExerciseService {
   private PushupDTO convertToPushupDTO(PushupEntity entity) {
     PushupDTO dto = new PushupDTO();
     dto.setLogin_id(entity.getUser().getLoginId());
-    dto.setSet(entity.getSet());
+    dto.setExercise_set(entity.getExercise_set());
     dto.setTimer_sec(entity.getTimer_sec());
     dto.setCount(entity.getCount());
     dto.setPerfect(entity.getPerfect());
@@ -183,7 +183,7 @@ public class ExerciseService {
 
     SquatEntity squatEntity = new SquatEntity();
     squatEntity.setUser(user);
-    squatEntity.setSet(set);
+    squatEntity.setExercise_set(set);
     squatEntity.setTimer_sec(timerSec);
     squatEntity.setCount(count);
     squatEntity.setPerfect(perfect);
@@ -215,7 +215,7 @@ public class ExerciseService {
   private SquatDTO convertToDTO(SquatEntity entity) {
     SquatDTO dto = new SquatDTO();
     dto.setLogin_id(entity.getUser().getLoginId());
-    dto.setSet(entity.getSet());
+    dto.setExercise_set(entity.getExercise_set());
     dto.setTimer_sec(entity.getTimer_sec());
     dto.setCount(entity.getCount());
     dto.setPerfect(entity.getPerfect());
