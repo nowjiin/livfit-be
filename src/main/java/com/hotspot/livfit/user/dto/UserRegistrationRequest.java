@@ -11,5 +11,4 @@ import lombok.Setter;
 public class UserRegistrationRequest {
   private String loginId;
   private String password;
-  private String nickname;
 }
