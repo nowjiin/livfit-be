@@ -19,6 +19,7 @@ import com.hotspot.livfit.user.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/api/squat")
@@ -46,13 +47,10 @@ public class SquatController {
   * }
   */
 
+  @Operation(summary = "스쿼트 운동 기록 저장", description = "스쿼트 운동 후 개인 기록 저장")
   @PostMapping("/save_record")
   public ResponseEntity<?> saveSquatRecord(
       @RequestHeader("Authorization") String bearerToken, @RequestBody RecordDTO recordDto) {
-    if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Invalid Authorization header format.");
-    }
 
     String token = bearerToken.substring(7).trim();
     if (token.isEmpty() || token.split("\\.").length != 3) {
@@ -61,8 +59,10 @@ public class SquatController {
 
     try {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 운동 기록 가져오기
       String jwtLoginId = claims.getId();
 
+      // 기록 저장하기
       exerciseService.saveRecordSquat(
           jwtLoginId,
           recordDto.getTimer_sec(),
@@ -75,7 +75,9 @@ public class SquatController {
           recordDto.getGraph());
       logger.info("스쿼트 기록 저장, 사용자 아이디: {}", jwtLoginId);
 
-      return ResponseEntity.ok().body("Squat record saved successfully.");
+      // 기록이 저장될 때 띄울 메시지
+      return ResponseEntity.ok().body("스쿼트 기록 저장 완료");
+
     } catch (JwtException e) {
       log.error("JWT processing error: {}", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -92,6 +94,7 @@ public class SquatController {
    * HTTP Method: GET
    */
 
+  @Operation(summary = "사용자의 스쿼트 운동 기록 가져오기", description = "로그인한 사용자의 개별 운동기록 가져오기")
   @GetMapping("/get_my_record")
   public ResponseEntity<?> getRecord(@RequestHeader("Authorization") String bearerToken) {
     try {
@@ -114,6 +117,7 @@ public class SquatController {
     }
   }
 
+  @Operation(summary = "사용자의 운동(스쿼트) 그래프 기록 가져오기", description = "그래프 안의 값 가져오기")
   @GetMapping("/graph")
   public ResponseEntity<?> getGraph(@RequestHeader("Authorization") String bearerToken) {
     try {
