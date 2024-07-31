@@ -30,7 +30,7 @@ public class MainPageService {
   private final TodayExerciseRepository todayExerciseRepository;
   private final UserChallengeStatusRepository userChallengeStatusRepository;
 
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true) // 여기는 수정 안 했습니다
   public MainPageDTO getMainPageInfo(String loginId) {
     // 사용자 정보를 가져옵니다
     User user =
