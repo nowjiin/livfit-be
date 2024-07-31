@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hotspot.livfit.mainpage.dto.MainPageDTO;
 import com.hotspot.livfit.mainpage.service.MainPageService;
+import com.hotspot.livfit.today_exercise.entity.TodayExercise;
 import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
 import com.hotspot.livfit.user.util.JwtUtil;
@@ -65,6 +66,21 @@ public class MainPageController {
           "Error during fetching nickname in controller /api/mainpage/nickname: {}",
           e.getMessage());
       return ResponseEntity.badRequest().body("Error retrieving nickname: " + e.getMessage());
+    }
+  }
+
+  @Operation(summary = "오늘의 운동 조회", description = "오늘의 운동을 랜덤으로 1개 조회")
+  @GetMapping("/random-today-exercise")
+  public ResponseEntity<?> getRandomTodayExercise() {
+    try {
+      TodayExercise todayExercise = mainPageService.getRandomTodayExercise();
+      return ResponseEntity.ok(todayExercise);
+    } catch (Exception e) {
+      log.error(
+          "Error during fetching random today exercise in controller /api/mainpage/random-today-exercise: {}",
+          e.getMessage());
+      return ResponseEntity.badRequest()
+          .body("Error retrieving random today exercise: " + e.getMessage());
     }
   }
 }
