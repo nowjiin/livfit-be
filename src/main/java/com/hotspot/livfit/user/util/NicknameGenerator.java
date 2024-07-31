@@ -18,7 +18,8 @@ public class NicknameGenerator {
   };
 
   public static String generateNickname() {
-    Random random = new Random();
+    long seed = System.currentTimeMillis(); // 현재 시간
+    Random random = new Random(seed); // seed 추가
     String action = ACTIONS[random.nextInt(ACTIONS.length)];
     String animal = ANIMALS[random.nextInt(ANIMALS.length)];
     return action + " " + animal;
