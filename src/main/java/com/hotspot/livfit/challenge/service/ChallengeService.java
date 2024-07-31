@@ -1,76 +1,147 @@
 package com.hotspot.livfit.challenge.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.hotspot.livfit.challenge.dto.UserChallengeDTO;
-import com.hotspot.livfit.challenge.entity.ChallengeEntity;
-import com.hotspot.livfit.challenge.entity.ChallengeUserEntity;
-import com.hotspot.livfit.challenge.repository.ChallengeRepository;
-import com.hotspot.livfit.challenge.repository.ChallengeUserRepository;
+import com.hotspot.livfit.challenge.dto.*;
+import com.hotspot.livfit.challenge.entity.*;
+import com.hotspot.livfit.challenge.repository.*;
 import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChallengeService {
+
   private final ChallengeRepository challengeRepository;
-  private final ChallengeUserRepository challengeUserRepository;
+  private final UserChallengeStatusRepository userChallengeStatusRepository;
   private final UserRepository userRepository;
 
-  public Optional<ChallengeEntity> getChallenge(Long id) {
-    return challengeRepository.findByNumberId(id);
-  }
-
-  public List<ChallengeEntity> findAllChallenges() {
-    return challengeRepository.findAll();
-  }
-
-  public ChallengeUserEntity saveChallenge(
-      String jwtLoginId, String title, LocalDateTime startedAt, String success) {
-    User user =
-        userRepository
-            .findByLoginId(jwtLoginId)
-            .orElseThrow(() -> new RuntimeException("User not found with login ID: " + jwtLoginId));
-
-    ChallengeEntity challengeEntity =
-        challengeRepository
-            .findByTitle(title)
-            .orElseThrow(() -> new RuntimeException("Challenge not found with ID: " + title));
-
-    // ChallengeUser 엔티티에서 로그인 아이디 참조 변경에 따라 수정함
-    ChallengeUserEntity challengeUserEntity = new ChallengeUserEntity();
-    challengeUserEntity.setUser(user);
-    challengeUserEntity.setChallenge(challengeEntity);
-    challengeUserEntity.setSuccess(success);
-    challengeUserEntity.setStartedAt(startedAt);
-    challengeUserEntity.setTitle(challengeEntity.getTitle());
-
-    return challengeUserRepository.save(challengeUserEntity);
-  }
-
-  // 사용자 로그인 ID로 챌린지 기록 조회
-  public List<UserChallengeDTO> getChallengeUserById(String loginId) {
-    return challengeUserRepository.findByLoginId(loginId).stream()
-        .map(this::convertToUserChallengeDTO)
+  // 모든 챌린지 조회
+  @Transactional(readOnly = true)
+  public List<ChallengeSummaryDTO> findAllChallenges() {
+    List<ChallengeEntity> challenges = challengeRepository.findAll();
+    return challenges.stream()
+        .map(
+            challenge ->
+                new ChallengeSummaryDTO(
+                    challenge.getId(), challenge.getTitle(), challenge.getDescription(), "진행중"))
         .collect(Collectors.toList());
   }
 
-  private UserChallengeDTO convertToUserChallengeDTO(ChallengeUserEntity entity) {
-    User user = entity.getUser();
-    return new UserChallengeDTO(
-        entity.getId(),
-        user.getLoginId(),
-        user.getNickname(),
-        entity.getChallenge().getTitle(),
-        entity.getChallenge().getContent(),
-        entity.getStartedAt(),
-        entity.getSuccess());
+  // ID로 특정 챌린지 조회
+  @Transactional(readOnly = true)
+  public Optional<ChallengeDetailDTO> getChallenge(Long id) {
+    return challengeRepository
+        .findById(id)
+        .map(
+            challenge ->
+                new ChallengeDetailDTO(
+                    challenge.getId(),
+                    challenge.getTitle(),
+                    challenge.getDescription(),
+                    challenge.getStartDate(),
+                    challenge.getEndDate(),
+                    challenge.getFrequency(),
+                    challenge.getDifficulty(),
+                    challenge.getReward()));
+  }
+
+  // 특정 사용자의 챌린지 기록 조회
+  @Transactional(readOnly = true)
+  public List<UserChallengeResponseDTO> getUserChallenges(String loginId) {
+    List<UserChallengeStatus> statusList =
+        userChallengeStatusRepository.findByUser_LoginId(loginId);
+    List<UserChallengeResponseDTO> responseDTOList = new ArrayList<>();
+
+    for (UserChallengeStatus status : statusList) {
+      UserChallengeResponseDTO dto =
+          new UserChallengeResponseDTO(
+              status.getId(),
+              status.getUser().getLoginId(), // 유저 엔티티에서 getLoginId() 메서드 필요
+              status.getChallenge().getTitle(), // 챌린지 엔티티에서 getTitle() 메서드 필요
+              status.getStatus() // 상태 정보
+              );
+      responseDTOList.add(dto);
+    }
+
+    return responseDTOList;
+  }
+
+  // 챌린지 상태 업데이트 (성공/실패 여부 업데이트)
+  @Transactional
+  public boolean updateChallengeStatus(String loginId, UserChallengeUpdateRequestDTO dto) {
+    Optional<UserChallengeStatus> statusOpt =
+        userChallengeStatusRepository.findByUser_LoginIdAndChallenge_Id(
+            loginId, dto.getChallengeId());
+
+    if (statusOpt.isPresent()) {
+      UserChallengeStatus status = statusOpt.get();
+      status.setStatus(dto.getStatus());
+      userChallengeStatusRepository.save(status);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // 챌린지 참여
+  @Transactional
+  public String participateInChallenge(String loginId, Long challengeId) {
+    Optional<UserChallengeStatus> existingStatus =
+        userChallengeStatusRepository.findByUser_LoginIdAndChallenge_Id(loginId, challengeId);
+
+    if (existingStatus.isPresent()) {
+      return "Already participating in this challenge.";
+    }
+
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    ChallengeEntity challenge =
+        challengeRepository
+            .findById(challengeId)
+            .orElseThrow(() -> new RuntimeException("Challenge not found"));
+
+    UserChallengeStatus newStatus = new UserChallengeStatus();
+    newStatus.setUser(user);
+    newStatus.setChallenge(challenge);
+    newStatus.setStatus(0); // 상태를 "진행중"으로 설정
+    newStatus.setStartedAt(LocalDate.now());
+    newStatus.setJoinedAt(LocalDateTime.now()); // 현재 시간으로 설정
+
+    userChallengeStatusRepository.save(newStatus);
+    return "Challenge participation successful.";
+  }
+
+  @Transactional(readOnly = true)
+  public List<UserChallengeResponseDTO> getInProgressChallenges(String loginId) {
+    List<UserChallengeStatus> inProgressStatuses =
+        userChallengeStatusRepository.findByUser_LoginIdAndStatus(loginId, 0);
+    List<UserChallengeResponseDTO> responseDTOList = new ArrayList<>();
+
+    for (UserChallengeStatus status : inProgressStatuses) {
+      UserChallengeResponseDTO dto = new UserChallengeResponseDTO();
+      dto.setId(status.getId());
+      dto.setLoginId(status.getUser().getLoginId());
+      dto.setChallengeTitle(status.getChallenge().getTitle());
+      dto.setStatus(status.getStatus());
+
+      responseDTOList.add(dto);
+    }
+
+    return responseDTOList;
   }
 }
