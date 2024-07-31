@@ -1,6 +1,7 @@
 package com.hotspot.livfit.today_exercise.controller;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -52,13 +53,13 @@ public class TodayExerciseController {
     try {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       String jwtLoginId = claims.getId(); // JWT에서 사용자 ID를 추출
+      DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
 
       // TodayExerciseService를 통해 오늘의 운동 기록을 저장
       TodayExerciseUser todayExerciseUser =
           todayExerciseService.saveChallenge(
-              jwtLoginId,
-              DayOfWeek.valueOf(todayExerciseRequest.getDayOfWeek().toString()),
-              todayExerciseRequest.getSuccess());
+              jwtLoginId, dayOfWeek, todayExerciseRequest.getSuccess());
+      System.out.println(dayOfWeek);
       logger.info("일일 운동 기록 저장됨: {}", todayExerciseUser);
 
       return ResponseEntity.ok(todayExerciseUser);

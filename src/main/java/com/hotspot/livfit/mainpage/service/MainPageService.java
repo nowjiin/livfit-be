@@ -43,7 +43,6 @@ public class MainPageService {
 
   private TodayExerciseDTO convertToTodayExerciseDTO(TodayExerciseUser user) {
     TodayExerciseDTO dto = new TodayExerciseDTO();
-    dto.setLoginId(user.getLoginId());
     dto.setDayOfWeek(user.getDayOfWeek());
     dto.setSuccess(user.getSuccess());
     return dto;
