@@ -27,4 +27,8 @@ public interface UserBadgeRepository extends JpaRepository<UserBadge, Long> {
   // 사용자가 소유한 뱃지 개수 조회 (마이페이지에서 뱃지 개수를 나타내기 위한 쿼리)
   @Query("SELECT COUNT(ub) FROM UserBadge ub WHERE ub.user.loginId = :loginId")
   int countByLoginId(String loginId);
+
+  // 메인 뱃지 조회
+  @Query("SELECT ub FROM UserBadge ub WHERE ub.user.loginId = :loginId AND ub.mainBadge = true")
+  Optional<UserBadge> findMainBadgeByLoginId(String loginId);
 }
