@@ -80,12 +80,13 @@ public class TodayExerciseController {
   }
 
   /*
-   * URL: api/today_exercise/show/
+   * URL: api/today_exercise/show/id
    * HTTP Method: GET
    * 토큰 필요 x
    */
 
   // 번호에 맞춰서 프론트 엔드가 사용하게[오늘의 운동 리스트 아이디]
+  // ex). id = 1 -> 1번에 저장되어 있는 db 내용 조회 후 전달
   @Operation(summary = "db에 있는 오늘의 운동 조회", description = "db에 있는 오늘의 운동 종류 가져오기")
   @GetMapping("/show/{id}")
   public ResponseEntity<TodayExercise> getTodayExerciseById(@PathVariable Long id) {
