@@ -14,13 +14,16 @@ import com.hotspot.livfit.turtle.entity.TurtleEntity;
 import com.hotspot.livfit.turtle.repository.TurtleRepository;
 import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
+import com.hotspot.livfit.user.util.JwtUtil;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class TurtleService {
   private final UserRepository userRepository;
   private final TurtleRepository turtleRepository;
+  private final JwtUtil jwtUtil;
 
+  // 거북목 기록 저장(회원& 비호원)
   public TurtleEntity saveRecord(
       String jwtLoginId, String nickname, int score, LocalDate localDate) {
     User user = null;
@@ -45,18 +48,22 @@ public class TurtleService {
     return turtleRepository.save(turtle);
   }
 
+  // 거북목 저장된 기록(순위 조회)
   public List<TurtleDTO> findAllRecords() {
     return turtleRepository.findAllRecords();
   }
 
+  // 거북목 사용자 아이디로 조회하기
   @Transactional(readOnly = true)
-  public List<TurtleDTO> getTurtleRecordsByLoginId(String nickname) {
-    List<TurtleEntity> turtles = turtleRepository.findByUserNickname(nickname);
+  public List<TurtleDTO> getTurtleRecordsByLoginId(String loginId) {
+    List<TurtleEntity> turtles = turtleRepository.findByLoginId(loginId);
     return turtles.stream().map(this::convertToTurtleDTO).collect(Collectors.toList());
   }
 
+  // dto로 변환하기
   private TurtleDTO convertToTurtleDTO(TurtleEntity turtle) {
     TurtleDTO dto = new TurtleDTO();
+    dto.setLoginId(turtle.getUser().getLoginId());
     dto.setNickname(turtle.getNickname());
     dto.setScore(turtle.getScore());
     dto.setLocalDate(turtle.getLocalDate());
