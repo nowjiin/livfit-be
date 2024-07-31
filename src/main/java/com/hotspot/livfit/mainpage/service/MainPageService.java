@@ -38,7 +38,7 @@ public class MainPageService {
     List<TodayExerciseDTO> exercises =
         exerciseUsers.stream().map(this::convertToTodayExerciseDTO).collect(Collectors.toList());
 
-    return new MainPageDTO(user.getLoginId(), exercises);
+    return new MainPageDTO(exercises);
   }
 
   private TodayExerciseDTO convertToTodayExerciseDTO(TodayExerciseUser user) {

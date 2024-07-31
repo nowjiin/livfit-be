@@ -12,6 +12,5 @@ import com.hotspot.livfit.today_exercise.dto.TodayExerciseDTO;
 @Setter
 @AllArgsConstructor
 public class MainPageDTO {
-  private String loginId;
   private List<TodayExerciseDTO> exercises;
 }
