@@ -10,10 +10,9 @@ import com.hotspot.livfit.turtle.dto.TurtleDTO;
 import com.hotspot.livfit.turtle.entity.TurtleEntity;
 
 public interface TurtleRepository extends JpaRepository<TurtleEntity, Long> {
-  @Query("SELECT t FROM TurtleEntity t WHERE t.user.nickname = :nickname")
-  List<TurtleEntity> findByUserNickname(@Param("nickname") String nickname);
+  @Query("SELECT t FROM TurtleEntity t WHERE t.user.loginId = :loginId")
+  List<TurtleEntity> findByLoginId(@Param("loginId") String loginId);
 
-  @Query(
-      "SELECT new com.hotspot.livfit.turtle.dto.TurtleDTO(p.nickname, p.score, p.localDate ) FROM TurtleEntity p ORDER BY p.score DESC")
+  @Query("SELECT t FROM TurtleEntity t")
   List<TurtleDTO> findAllRecords();
 }
