@@ -1,7 +1,6 @@
 package com.hotspot.livfit.mypage.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,9 +16,6 @@ import com.hotspot.livfit.exercise.dto.SquatDTO;
 import com.hotspot.livfit.exercise.entity.LungeEntity;
 import com.hotspot.livfit.exercise.entity.PushupEntity;
 import com.hotspot.livfit.exercise.entity.SquatEntity;
-import com.hotspot.livfit.exercise.repository.LungeRepository;
-import com.hotspot.livfit.exercise.repository.PushupRepository;
-import com.hotspot.livfit.exercise.repository.SquatRepository;
 import com.hotspot.livfit.mypage.dto.MyPageResponseDTO;
 import com.hotspot.livfit.point.entity.PointHistory;
 import com.hotspot.livfit.point.repository.PointHistoryRepository;
@@ -32,18 +28,15 @@ public class MyPageService {
 
   private final UserRepository userRepository;
   private final PointHistoryRepository pointHistoryRepository;
-  private final LungeRepository lungeRepository;
-  private final PushupRepository pushupRepository;
-  private final SquatRepository squatRepository;
   private final ChallengeRepository challengeRepository;
   private final UserBadgeRepository userBadgeRepository;
 
   @Transactional(readOnly = true)
   public MyPageResponseDTO getMyPageInfo(String loginId) {
     User user =
-        userRepository
-            .findByLoginId(loginId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            userRepository
+                    .findByLoginId(loginId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
     // 특정 사용자 ID의 누적 포인트 히스토리 조회하고
     int totalPoints = 0;
@@ -53,37 +46,14 @@ public class MyPageService {
       totalPoints = history.get(history.size() - 1).getTotalPoints();
     }
 
-    // 운동 기록을 DTO로 변환하여 가져옴
-    List<LungeDTO> lunges =
-        lungeRepository.findByLoginId(loginId).stream()
-            .map(this::convertToLungeDTO)
-            .collect(Collectors.toList());
-
-    List<PushupDTO> pushups =
-        pushupRepository.findByLoginId(loginId).stream()
-            .map(this::convertToPushupDTO)
-            .collect(Collectors.toList());
-
-    List<SquatDTO> squats =
-        squatRepository.findByLoginId(loginId).stream()
-            .map(this::convertToSquatDTO)
-            .collect(Collectors.toList());
-
     // 모든 챌린지 조회
     List<ChallengeEntity> challengeEntities = challengeRepository.findAllChallenges();
 
-    // 뱃지 개수 조회 추가 (피그마 보니까 마이페이지에 뱃지 갯수 있어서 추가했습니다)
+    // 뱃지 개수 조회 추가
     int badgeCount = userBadgeRepository.countByLoginId(loginId);
 
     return new MyPageResponseDTO(
-        user.getLoginId(),
-        user.getNickname(),
-        totalPoints,
-        badgeCount,
-        lunges,
-        pushups,
-        squats,
-        challengeEntities);
+            user.getLoginId(), user.getNickname(), totalPoints, badgeCount, challengeEntities);
   }
 
   // LungeEntity를 LungeDTO로 변환
@@ -132,9 +102,9 @@ public class MyPageService {
   @Transactional
   public void updateNickname(String loginId, String newNickname) {
     User user =
-        userRepository
-            .findByLoginId(loginId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            userRepository
+                    .findByLoginId(loginId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
     user.setNickname(newNickname);
     userRepository.save(user);
   }
