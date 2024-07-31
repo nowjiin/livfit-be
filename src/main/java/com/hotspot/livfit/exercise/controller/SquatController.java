@@ -71,8 +71,8 @@ public class SquatController {
           recordDto.getGood(),
           recordDto.getGreat(),
           recordDto.getCreated_at(),
-          recordDto.getExercise_set(),
-          recordDto.getGraph());
+          recordDto.getExercise_set());
+
       logger.info("스쿼트 기록 저장, 사용자 아이디: {}", jwtLoginId);
 
       // 기록이 저장될 때 띄울 메시지

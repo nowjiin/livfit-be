@@ -70,8 +70,7 @@ public class PushupController {
           recordDto.getGood(),
           recordDto.getGreat(),
           recordDto.getExercise_set(),
-          recordDto.getCreated_at(),
-          recordDto.getGraph());
+          recordDto.getCreated_at());
 
       logger.info("푸쉬업 기록 저장 사용자 : {}", jwtLoginId);
       // 기록이 저장될 때 띄울 메시지
