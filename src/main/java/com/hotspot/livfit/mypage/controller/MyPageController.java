@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hotspot.livfit.badge.dto.MainBadgeRequestDTO;
+import com.hotspot.livfit.badge.service.UserBadgeService;
 import com.hotspot.livfit.mypage.dto.MyPageResponseDTO;
 import com.hotspot.livfit.mypage.dto.NicknameUpdateRequestDTO;
 import com.hotspot.livfit.mypage.service.MyPageService;
@@ -21,6 +23,7 @@ import io.swagger.v3.oas.annotations.Operation;
 public class MyPageController {
 
   private final MyPageService myPageService;
+  private final UserBadgeService userBadgeService;
   private final JwtUtil jwtUtil;
 
   // 마이페이지 정보 조회
@@ -60,6 +63,28 @@ public class MyPageController {
     } catch (RuntimeException e) {
       log.error(
           "Error during updating nickname in controller /api/mypage/nickname: {}", e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @Operation(summary = "메인 뱃지 설정", description = "사용자가 메인 뱃지를 설정")
+  @PostMapping("/set-main-badge")
+  public ResponseEntity<?> setMainBadge(
+      @RequestHeader("Authorization") String bearerToken,
+      @RequestBody MainBadgeRequestDTO mainBadgeRequestDTO) {
+
+    try {
+      String token = bearerToken.substring(7);
+      Claims claims = jwtUtil.getAllClaimsFromToken(token);
+      String jwtLoginId = claims.getId();
+
+      userBadgeService.setMainBadge(jwtLoginId, mainBadgeRequestDTO.getBadgeId());
+      log.info("{} 사용자의 메인뱃지를 {}로 설정 성공.", jwtLoginId, mainBadgeRequestDTO.getBadgeId());
+      return ResponseEntity.ok("Main badge set successfully from MyPage");
+    } catch (RuntimeException e) {
+      log.error(
+          "Error during setting main badge in MyPage controller /api/mypage/set-main-badge: {}",
+          e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }

@@ -31,23 +31,23 @@ public class UserBadgeService {
   public boolean checkandAwardBadge(String loginId, String badgeId, boolean conditionCheck) {
     // loginId를 사용하여 사용자 조회
     User user =
-            userRepository
-                    .findByLoginId(loginId)
-                    .orElseThrow(
-                            () -> {
-                              log.error("User not found with login ID: {}", loginId);
-                              return new RuntimeException("User not found");
-                            });
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(
+                () -> {
+                  log.error("User not found with login ID: {}", loginId);
+                  return new RuntimeException("User not found");
+                });
 
     // badgeId를 사용하여 Badge 조회
     Badge badge =
-            badgeRepository
-                    .findById(badgeId)
-                    .orElseThrow(
-                            () -> {
-                              log.error("Badge not found with badge ID: {}", badgeId);
-                              return new RuntimeException("Badge not found");
-                            });
+        badgeRepository
+            .findById(badgeId)
+            .orElseThrow(
+                () -> {
+                  log.error("Badge not found with badge ID: {}", badgeId);
+                  return new RuntimeException("Badge not found");
+                });
 
     if (conditionCheck) {
       // 사용자가 해당 뱃지를 이미 가지고 있는지 확인
@@ -62,9 +62,9 @@ public class UserBadgeService {
       }
     } else {
       log.warn(
-              "Condition check failed for awarding badge '{}' to user with login ID '{}'",
-              badgeId,
-              loginId);
+          "Condition check failed for awarding badge '{}' to user with login ID '{}'",
+          badgeId,
+          loginId);
     }
     return false; // 조건을 만족하지 않거나 이미 뱃지를 소유하고 있는 경우
   }
@@ -72,9 +72,9 @@ public class UserBadgeService {
   // 유저뱃지 엔티티 생성&저장
   private void awardBadgeToUser(User user, Badge badge) {
     log.info(
-            "Creating UserBadge entity for user with ID '{}' and badge '{}'",
-            user.getId(),
-            badge.getId());
+        "Creating UserBadge entity for user with ID '{}' and badge '{}'",
+        user.getId(),
+        badge.getId());
     UserBadge userBadge = new UserBadge();
     userBadge.setUser(user);
     userBadge.setBadge(badge);
@@ -82,7 +82,7 @@ public class UserBadgeService {
     userBadgeRepository.save(userBadge);
 
     log.info(
-            "UserBadge entity saved for user with ID '{}' and badge '{}'", user.getId(), badge.getId());
+        "UserBadge entity saved for user with ID '{}' and badge '{}'", user.getId(), badge.getId());
   }
 
   // 메인 뱃지 설정 메서드
@@ -90,13 +90,13 @@ public class UserBadgeService {
   public void setMainBadge(String loginId, String badgeId) {
     // 로그인 ID로 사용자 조회
     User user =
-            userRepository
-                    .findByLoginId(loginId)
-                    .orElseThrow(
-                            () -> {
-                              log.error("User not found with login ID: {}", loginId);
-                              return new RuntimeException("User not found");
-                            });
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(
+                () -> {
+                  log.error("User not found with login ID: {}", loginId);
+                  return new RuntimeException("User not found");
+                });
 
     // 이전 메인 뱃지를 모두 해제
     List<UserBadge> userBadges = userBadgeRepository.findByLoginId(loginId);
@@ -107,16 +107,16 @@ public class UserBadgeService {
 
     // 새로운 메인 뱃지 설정
     UserBadge mainBadge =
-            userBadgeRepository
-                    .findByUser_LoginIdAndBadge_Id(loginId, badgeId)
-                    .orElseThrow(
-                            () -> {
-                              log.error(
-                                      "UserBadge not found for user with login ID '{}' and badge ID '{}'",
-                                      loginId,
-                                      badgeId);
-                              return new RuntimeException("UserBadge not found");
-                            });
+        userBadgeRepository
+            .findByUser_LoginIdAndBadge_Id(loginId, badgeId)
+            .orElseThrow(
+                () -> {
+                  log.error(
+                      "UserBadge not found for user with login ID '{}' and badge ID '{}'",
+                      loginId,
+                      badgeId);
+                  return new RuntimeException("UserBadge not found");
+                });
 
     mainBadge.setMainBadge(true);
     userBadgeRepository.save(mainBadge);

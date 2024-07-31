@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
-import com.hotspot.livfit.challenge.dto.ChallengeDTO;
+import com.hotspot.livfit.challenge.dto.UserChallengeDTO;
 import com.hotspot.livfit.challenge.entity.ChallengeEntity;
 import com.hotspot.livfit.challenge.entity.ChallengeUserEntity;
 import com.hotspot.livfit.challenge.repository.ChallengeRepository;
@@ -44,34 +44,33 @@ public class ChallengeService {
             .findByTitle(title)
             .orElseThrow(() -> new RuntimeException("Challenge not found with ID: " + title));
 
+    // ChallengeUser 엔티티에서 로그인 아이디 참조 변경에 따라 수정함
     ChallengeUserEntity challengeUserEntity = new ChallengeUserEntity();
-    challengeUserEntity.setLoginId(user.getLoginId());
-    challengeUserEntity.setTitle(challengeEntity.getTitle());
+    challengeUserEntity.setUser(user);
+    challengeUserEntity.setChallenge(challengeEntity);
     challengeUserEntity.setSuccess(success);
     challengeUserEntity.setStartedAt(startedAt);
+    challengeUserEntity.setTitle(challengeEntity.getTitle());
 
     return challengeUserRepository.save(challengeUserEntity);
   }
 
-  public List<ChallengeDTO> getChallengeUserById(String jwtLoginId) {
-    List<ChallengeUserEntity> challengeUserEntities =
-        challengeUserRepository.findByLoginId(jwtLoginId);
-
-    return challengeUserEntities.stream()
-        .map(this::convertToChallengeDTO)
+  // 사용자 로그인 ID로 챌린지 기록 조회
+  public List<UserChallengeDTO> getChallengeUserById(String loginId) {
+    return challengeUserRepository.findByLoginId(loginId).stream()
+        .map(this::convertToUserChallengeDTO)
         .collect(Collectors.toList());
   }
 
-  private ChallengeDTO convertToChallengeDTO(ChallengeUserEntity entity) {
-    ChallengeDTO dto = new ChallengeDTO();
-    dto.setLoginId(entity.getUser().getLoginId());
-    dto.setStartedAt(entity.getStartedAt());
-    dto.setSuccess(entity.getSuccess());
-    if (entity.getChallenge() != null) {
-      dto.setTitle(entity.getChallenge().getTitle());
-    } else {
-      dto.setTitle("No title available");
-    }
-    return dto;
+  private UserChallengeDTO convertToUserChallengeDTO(ChallengeUserEntity entity) {
+    User user = entity.getUser();
+    return new UserChallengeDTO(
+        entity.getId(),
+        user.getLoginId(),
+        user.getNickname(),
+        entity.getChallenge().getTitle(),
+        entity.getChallenge().getContent(),
+        entity.getStartedAt(),
+        entity.getSuccess());
   }
 }
