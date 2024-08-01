@@ -1,14 +1,12 @@
 package com.hotspot.livfit.today_exercise.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.persistence.*;
-
-import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "today_exercise")
@@ -34,6 +32,13 @@ public class TodayExercise {
   @Column(name = "timer_sec")
   private int timer_sec;
 
-  // 오늘의 운동 생성된 시간 [ 48시간 후 파괴 예정 ]
-  @CreationTimestamp private LocalDateTime created_at;
+  // 해당 운동이 유효한 날짜 (시작 날짜)
+  @Column(name = "effective_date", nullable = true)
+  private LocalDate effectiveDate;
+
+  // 해당 운동이 만료되는 날짜 (종료 날짜)
+  @Column(name = "expiration_date", nullable = true)
+  private LocalDate expirationDate;
+
+  // 직접 DB에서 데이터 넣어줄거라 생성시간 필요없음
 }

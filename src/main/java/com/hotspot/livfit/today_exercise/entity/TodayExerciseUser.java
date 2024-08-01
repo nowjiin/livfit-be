@@ -1,6 +1,6 @@
 package com.hotspot.livfit.today_exercise.entity;
 
-import java.time.DayOfWeek;
+import java.time.LocalDate;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +10,10 @@ import jakarta.persistence.*;
 
 import com.hotspot.livfit.user.entity.User;
 
+@Entity
 @Table(name = "today_exercise_user")
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
 public class TodayExerciseUser {
   // pk
@@ -21,20 +21,24 @@ public class TodayExerciseUser {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "loginid")
-  private String loginId;
-
-  // 개인이 여러개 기록 가지고 있으므로
+  // 로그인 아이디 참조
   @ManyToOne
-  @JoinColumn(name = "user_id", referencedColumnName = "id")
+  @JoinColumn(name = "login_id", referencedColumnName = "login_id")
   private User user;
 
-  // 요일
-  @Enumerated(EnumType.STRING)
-  @Column(name = "day_of_week")
-  private DayOfWeek dayOfWeek;
+  // 오늘의 운동 pk값 참조
+  @ManyToOne
+  @JoinColumn(name = "today_exercise_id", referencedColumnName = "id")
+  private TodayExercise todayExercise;
 
-  // 성공 실패 여부
-  @Column(name = "success")
-  private String success;
+  // 상태
+  @Column(name = "status", nullable = false)
+  private int status;
+
+  public static final int STATUS_NOT_STARTED = 0; // 시작 전
+  public static final int STATUS_SUCCESS = 1; // 성공
+  public static final int STATUS_FAILED = 2; // 실패
+
+  @Column(name = "attempted_at")
+  private LocalDate attemptedAt;
 }

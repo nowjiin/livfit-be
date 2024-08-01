@@ -91,4 +91,12 @@ public class UserService implements UserDetailsService {
     return new org.springframework.security.core.userdetails.User(
         user.getLoginId(), user.getLoginPw(), authorities);
   }
+
+  public String findNicknameByLoginId(String loginId) {
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found with login ID: " + loginId));
+    return user.getNickname();
+  }
 }
