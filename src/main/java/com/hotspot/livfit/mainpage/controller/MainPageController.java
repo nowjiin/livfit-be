@@ -1,10 +1,12 @@
 package com.hotspot.livfit.mainpage.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -13,9 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hotspot.livfit.challenge.dto.UserChallengeResponseDTO;
 import com.hotspot.livfit.challenge.service.ChallengeService;
-import com.hotspot.livfit.mainpage.dto.MainPageDTO;
 import com.hotspot.livfit.mainpage.service.MainPageService;
-import com.hotspot.livfit.today_exercise.entity.TodayExercise;
+import com.hotspot.livfit.today_exercise.dto.TodayExerciseDTO;
+import com.hotspot.livfit.today_exercise.dto.WeeklyExerciseStatusDTO;
+import com.hotspot.livfit.today_exercise.service.TodayExerciseService;
 import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
 import com.hotspot.livfit.user.util.JwtUtil;
@@ -31,24 +34,27 @@ public class MainPageController {
   private final JwtUtil jwtUtil;
   private final MainPageService mainPageService;
   private final UserRepository userRepository;
+  private final TodayExerciseService todayExerciseService;
   private final ChallengeService challengeService;
 
-  @Operation(summary = "일주일 달성률 확인 (???)", description = "달성한 요일 체크표시")
-  @GetMapping("/get-achievement-rate")
-  public ResponseEntity<?> getMain(@RequestHeader("Authorization") String bearerToken) {
+  // 일주일 동안의 운동 상태 조회 (달성률? - 메인페이지 하단)
+  @Operation(summary = "일주일 운동 상태 조회", description = "사용자의 일주일 운동 상태를 조회")
+  @GetMapping("/week-status")
+  public ResponseEntity<?> getWeeklyExerciseStatus(
+      @RequestHeader("Authorization") String bearerToken) {
     try {
       String token = bearerToken.substring(7);
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       String loginId = claims.getId();
 
-      log.info("메인페이지에 있는, 사용자 아이디: {}", loginId);
+      List<WeeklyExerciseStatusDTO> weeklyStatus =
+          todayExerciseService.getWeeklyExerciseStatus(loginId);
 
-      MainPageDTO responses = mainPageService.getMainPageInfo(loginId);
-      return ResponseEntity.ok(responses);
-    } catch (Exception e) {
-      log.error(
-          "Error during fetching mainpage info in controller /api/mainpage: {}", e.getMessage());
-      return ResponseEntity.badRequest().body("Error retrieving main page info: " + e.getMessage());
+      return ResponseEntity.ok(weeklyStatus);
+    } catch (RuntimeException e) {
+      log.error("Error retrieving weekly exercise status: {}", e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("Error retrieving weekly exercise status: " + e.getMessage());
     }
   }
 
@@ -74,18 +80,20 @@ public class MainPageController {
     }
   }
 
-  @Operation(summary = "오늘의 운동 조회", description = "오늘의 운동을 랜덤으로 1개 조회")
+  // 오늘의 운동 조회
+  @Operation(summary = "오늘의 운동 조회", description = "오늘의 운동을 조회")
   @GetMapping("/getTodayexercise")
-  public ResponseEntity<?> getRandomTodayExercise() {
+  public ResponseEntity<?> getTodayExercise() {
     try {
-      TodayExercise todayExercise = mainPageService.getRandomTodayExercise();
-      return ResponseEntity.ok(todayExercise);
+      // 현재 날짜 기준으로 오늘의 운동을 조회
+      LocalDate today = LocalDate.now();
+      TodayExerciseDTO todayExerciseDTO = mainPageService.getTodayExercise(today);
+      return ResponseEntity.ok(todayExerciseDTO);
     } catch (Exception e) {
       log.error(
-          "Error during fetching random today exercise in controller /api/mainpage/random-today-exercise: {}",
+          "Error during fetching today exercise in controller /api/mainpage/getTodayexercise: {}",
           e.getMessage());
-      return ResponseEntity.badRequest()
-          .body("Error retrieving random today exercise: " + e.getMessage());
+      return ResponseEntity.badRequest().body("Error retrieving today exercise: " + e.getMessage());
     }
   }
 

@@ -1,7 +1,6 @@
 package com.hotspot.livfit.challenge.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -123,7 +122,7 @@ public class ChallengeService {
     newStatus.setChallenge(challenge);
     newStatus.setStatus(0); // 상태를 "진행중"으로 설정 (0 은 진행중 의미)
     newStatus.setStartedAt(LocalDate.now());
-    newStatus.setJoinedAt(LocalDateTime.now()); // 현재 시간으로 설정
+    newStatus.setJoinedAt(LocalDate.now()); // 현재 시간으로 설정
 
     userChallengeStatusRepository.save(newStatus);
     return "Challenge participation successful.";

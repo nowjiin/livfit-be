@@ -1,7 +1,6 @@
 package com.hotspot.livfit.challenge.entity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,5 +41,5 @@ public class UserChallengeStatus {
 
   // 챌린지 언제 참여했는지
   @Column(nullable = false)
-  private LocalDateTime joinedAt;
+  private LocalDate joinedAt;
 }
