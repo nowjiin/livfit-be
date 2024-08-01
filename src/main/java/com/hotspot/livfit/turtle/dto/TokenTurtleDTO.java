@@ -9,15 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-// 비회원용
-public class TurtleDTO {
-  private String nickname;
+public class TokenTurtleDTO {
   private int score;
   private LocalDate localDate;
-
-  public TurtleDTO(String nickname, int score, LocalDate localDate) {
-    this.nickname = nickname;
-    this.score = score;
-    this.localDate = localDate;
-  }
 }

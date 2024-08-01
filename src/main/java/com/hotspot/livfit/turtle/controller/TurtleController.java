@@ -12,9 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hotspot.livfit.turtle.dto.TokenTurtleDTO;
 import com.hotspot.livfit.turtle.dto.TurtleDTO;
 import com.hotspot.livfit.turtle.entity.TurtleEntity;
 import com.hotspot.livfit.turtle.service.TurtleService;
+import com.hotspot.livfit.user.service.UserService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
@@ -28,6 +30,7 @@ public class TurtleController {
 
   private final JwtUtil jwtUtil;
   private final TurtleService turtleService;
+  private final UserService userService;
   private static final Logger logger = LoggerFactory.getLogger(TurtleController.class);
 
   // 거북목 기록 저장
@@ -74,7 +77,7 @@ public class TurtleController {
   @PostMapping("/o/save_turtle_record")
   public ResponseEntity<?> savesTurtleRecord(
       @RequestHeader(value = "Authorization") String bearerToken,
-      @RequestBody TurtleDTO turtleData) {
+      @RequestBody TokenTurtleDTO turtleData) {
 
     try {
       // Bearer 토큰에서 JWT 추출
@@ -85,7 +88,7 @@ public class TurtleController {
       String jwtLoginId = claims.getId();
       int score = turtleData.getScore();
       // 로그인된 사용자 정보에서 닉네임 추출
-      String nickname = turtleData.getNickname();
+      String nickname = userService.findNicknameByLoginId(jwtLoginId);
       LocalDate localDate = turtleData.getLocalDate();
       logger.info("거북목 회원 기록 저장 사용자 아이디 : {}", jwtLoginId);
 
@@ -137,7 +140,7 @@ public class TurtleController {
 
       logger.info("거북목 기록 조회, 사용자 아이디: {}", jwtLoginId);
       // 조회(로그인 아이디로)
-      List<TurtleDTO> records = turtleService.getTurtleRecordsByLoginId(jwtLoginId);
+      List<TokenTurtleDTO> records = turtleService.getTurtleRecordsByLoginId(jwtLoginId);
       return ResponseEntity.ok(records);
     } catch (RuntimeException e) {
       log.error(

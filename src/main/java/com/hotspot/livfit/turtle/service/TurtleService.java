@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.hotspot.livfit.turtle.dto.TokenTurtleDTO;
 import com.hotspot.livfit.turtle.dto.TurtleDTO;
 import com.hotspot.livfit.turtle.entity.TurtleEntity;
 import com.hotspot.livfit.turtle.repository.TurtleRepository;
@@ -38,7 +39,6 @@ public class TurtleService {
     TurtleEntity turtle = new TurtleEntity();
 
     if (user != null) {
-      turtle.setUser(user);
       turtle.setNickname(user.getNickname()); // 사용자가 로그인한 경우 User 엔티티의 닉네임 사용
     } else {
       turtle.setNickname(nickname); // 로그인하지 않은 경우 입력받은 닉네임 사용
@@ -55,16 +55,14 @@ public class TurtleService {
 
   // 거북목 사용자 아이디로 조회하기
   @Transactional(readOnly = true)
-  public List<TurtleDTO> getTurtleRecordsByLoginId(String loginId) {
+  public List<TokenTurtleDTO> getTurtleRecordsByLoginId(String loginId) {
     List<TurtleEntity> turtles = turtleRepository.findByLoginId(loginId);
     return turtles.stream().map(this::convertToTurtleDTO).collect(Collectors.toList());
   }
 
   // dto로 변환하기
-  private TurtleDTO convertToTurtleDTO(TurtleEntity turtle) {
-    TurtleDTO dto = new TurtleDTO();
-    dto.setLoginId(turtle.getUser().getLoginId());
-    dto.setNickname(turtle.getNickname());
+  private TokenTurtleDTO convertToTurtleDTO(TurtleEntity turtle) {
+    TokenTurtleDTO dto = new TokenTurtleDTO();
     dto.setScore(turtle.getScore());
     dto.setLocalDate(turtle.getLocalDate());
     return dto;
