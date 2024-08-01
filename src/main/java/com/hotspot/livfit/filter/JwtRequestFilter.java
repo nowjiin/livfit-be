@@ -22,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
 import com.hotspot.livfit.user.util.JwtUtil;
+import io.jsonwebtoken.JwtException;
 
 /*
 * 코드 흐름
@@ -88,10 +89,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
           usernamePasswordAuthenticationToken.setDetails(
               new WebAuthenticationDetailsSource().buildDetails(request));
           SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        } else {
+          log.warn("Invalid JWT Token for user: {}", username);
         }
       }
+    } catch (JwtException e) {
+      // JWT 파싱 또는 검증 오류
+      // 로그 레벨 변경
+      log.warn("JwtException", e);
+      response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token validate오류");
+      return;
     } catch (Exception e) {
-      log.info("JWT Authentication Filter Failed");
+      // 로그 레벨 변경
+      log.warn("JWT Authentication Filter Error", e);
       response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
       return;
     }
