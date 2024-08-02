@@ -53,11 +53,15 @@ public class PushupEntity {
   @CreationTimestamp
   private LocalDateTime created_at;
 
-  // 그래프의 결과값 저장
-  @Column(name = "graph")
-  private Double graph;
-
   // 세트 수 저장
   @Column(name = "exercise_set")
   private int exercise_set;
+
+  // 그래프 값에 들어갈 총 시간
+  @Column(name = "total_time")
+  private int total_time;
+
+  // 그래프 값에 들어갈 총 개수
+  @Column(name = "total_coutns")
+  private int total_counts;
 }
