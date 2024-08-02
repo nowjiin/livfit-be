@@ -11,5 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LungeGraphDTO {
   private LocalDateTime createdAt;
-  private Double graph;
+  private long total_time;
+  private int today_counts;
+  private int total_counts;
 }

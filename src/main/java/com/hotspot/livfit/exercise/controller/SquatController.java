@@ -5,8 +5,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +26,6 @@ import io.swagger.v3.oas.annotations.Operation;
 public class SquatController {
   private final ExerciseService exerciseService;
   private final JwtUtil jwtUtil;
-  private static final Logger logger = LoggerFactory.getLogger(SquatController.class);
 
   // 스쿼트 기록 저장
   /*
@@ -63,20 +60,21 @@ public class SquatController {
       String jwtLoginId = claims.getId();
 
       // 기록 저장하기
-      exerciseService.saveRecordSquat(
-          jwtLoginId,
-          recordDto.getTimer_sec(),
-          recordDto.getCount(),
-          recordDto.getPerfect(),
-          recordDto.getGood(),
-          recordDto.getGreat(),
-          recordDto.getCreated_at(),
-          recordDto.getExercise_set());
+      SquatDTO squatDTO =
+          exerciseService.saveRecordSquat(
+              jwtLoginId,
+              recordDto.getTimer_sec(),
+              recordDto.getCount(),
+              recordDto.getPerfect(),
+              recordDto.getGood(),
+              recordDto.getGreat(),
+              recordDto.getCreated_at(),
+              recordDto.getExercise_set());
 
-      logger.info("스쿼트 기록 저장, 사용자 아이디: {}", jwtLoginId);
+      log.info("스쿼트 기록 저장, 사용자 아이디: {}", jwtLoginId);
 
       // 기록이 저장될 때 띄울 메시지
-      return ResponseEntity.ok().body("스쿼트 기록 저장 완료");
+      return ResponseEntity.ok(squatDTO);
 
     } catch (JwtException e) {
       log.error("JWT processing error: {}", e.getMessage());
@@ -104,7 +102,7 @@ public class SquatController {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 운동 기록 가져오기
       String jwtLoginId = claims.getId();
-      logger.info("스쿼트 기록 가져오기, 사용자 아이디: {}", jwtLoginId);
+      log.info("스쿼트 기록 가져오기, 사용자 아이디: {}", jwtLoginId);
 
       // 로그인 아이디로 사용자 운동 가져오기
       List<SquatDTO> squatRecords = exerciseService.getAllSquatByLoginId(jwtLoginId);
@@ -127,9 +125,9 @@ public class SquatController {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       // 클레임에서 로그인 아이디 추출 -> 로그인 아이디로 사용자 운동 기록 가져오기
       String jwtLoginId = claims.getId();
-      logger.info("스쿼트 그래프 기록 가져오기, 사용자 아이디: {}", jwtLoginId);
+      log.info("스쿼트 그래프 기록 가져오기, 사용자 아이디: {}", jwtLoginId);
 
-      List<SquatGraphDTO> squatEntities = exerciseService.getSquatGrpah(jwtLoginId);
+      List<SquatGraphDTO> squatEntities = exerciseService.getSquatGraph(jwtLoginId);
       return ResponseEntity.ok(squatEntities);
     } catch (RuntimeException e) {
       log.error(
