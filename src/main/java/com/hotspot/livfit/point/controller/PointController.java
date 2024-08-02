@@ -72,7 +72,8 @@ public class PointController {
       PointRequestDTO pointRequestDTO = new PointRequestDTO();
       pointRequestDTO.setPoints(300);
       pointRequestDTO.setType("earn");
-      pointRequestDTO.setDescription("운동 완료");
+      pointRequestDTO.setTitle("운동 완료");
+      pointRequestDTO.setDescription("300p 지급");
       pointService.updatePoints(loginId, pointRequestDTO);
       return ResponseEntity.ok("Points earned successfully");
     } catch (RuntimeException e) {
