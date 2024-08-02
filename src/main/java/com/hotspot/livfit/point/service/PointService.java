@@ -1,6 +1,6 @@
 package com.hotspot.livfit.point.service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,10 +49,11 @@ public class PointService {
 
     PointHistory pointHistory = new PointHistory();
     pointHistory.setUser(user);
-    pointHistory.setEventTime(LocalDateTime.now()); // 이벤트 발생 시간
+    pointHistory.setEventTime(LocalDate.now()); // 이벤트 발생 시간
     pointHistory.setPoints(pointRequestDTO.getPoints()); // 적립하거나 차감된 포인트 값
     pointHistory.setTotalPoints(totalPoints); // 누적 포인트 값
     pointHistory.setType(pointRequestDTO.getType()); // 포인트 적립/차감 타입 설정
+    pointHistory.setTitle(pointRequestDTO.getTitle());
     pointHistory.setDescription(pointRequestDTO.getDescription()); // 포인트 적립/차감에 대한 설명
     pointHistoryRepository.save(pointHistory);
 
@@ -83,8 +84,9 @@ public class PointService {
               h.getPoints(), // 적립 or 차감 포인트값
               h.getTotalPoints(), // 누적 포인트
               h.getType(), // 포인트 타입 (적립 or 차감)
-              h.getDescription() // 포인트 설명
-              );
+              h.getTitle(),
+              h.getDescription(), // 포인트 설명
+              h.getEventTime());
       historyDTOs.add(dto);
     }
     return historyDTOs;

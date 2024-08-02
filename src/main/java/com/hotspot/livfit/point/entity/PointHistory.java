@@ -1,6 +1,6 @@
 package com.hotspot.livfit.point.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,7 @@ public class PointHistory {
 
   // 이벤트 발생 시간
   @Column(name = "event_time")
-  private LocalDateTime eventTime;
+  private LocalDate eventTime;
 
   // 적립/차감된 포인트 값
   @Column(name = "points")
@@ -40,6 +40,9 @@ public class PointHistory {
   // 포인트 적립/차감 타입 (EARN or SPEND)
   @Column(name = "type")
   private String type;
+
+  @Column(name = "title")
+  private String title;
 
   // 포인트 적립/차감에 대한 설명
   @Column(name = "description")
