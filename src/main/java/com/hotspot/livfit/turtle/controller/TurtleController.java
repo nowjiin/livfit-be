@@ -6,15 +6,13 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hotspot.livfit.turtle.dto.ResponseTurtleDTO;
 import com.hotspot.livfit.turtle.dto.TokenTurtleDTO;
 import com.hotspot.livfit.turtle.dto.TurtleDTO;
-import com.hotspot.livfit.turtle.entity.TurtleEntity;
 import com.hotspot.livfit.turtle.service.TurtleService;
 import com.hotspot.livfit.user.service.UserService;
 import com.hotspot.livfit.user.util.JwtUtil;
@@ -31,7 +29,6 @@ public class TurtleController {
   private final JwtUtil jwtUtil;
   private final TurtleService turtleService;
   private final UserService userService;
-  private static final Logger logger = LoggerFactory.getLogger(TurtleController.class);
 
   // 거북목 기록 저장
   /*
@@ -50,10 +47,10 @@ public class TurtleController {
   public ResponseEntity<?> saveTurtleRecord(@RequestBody TurtleDTO turtleData) {
 
     try {
-      TurtleEntity entity =
-          turtleService.saveRecord(
-              null, turtleData.getNickname(), turtleData.getScore(), turtleData.getLocalDate());
-      logger.info("거북목 비회원 기록 저장 사용자 닉네임 : {}", turtleData.getNickname());
+      TurtleDTO entity =
+          turtleService.saveNoTokenRecord(
+              turtleData.getNickname(), turtleData.getScore(), turtleData.getLocalDate());
+      log.info("거북목 비회원 기록 저장 사용자 닉네임 : {}", turtleData.getNickname());
 
       return ResponseEntity.ok(entity);
     } catch (RuntimeException ex) {
@@ -90,11 +87,12 @@ public class TurtleController {
       // 로그인된 사용자 정보에서 닉네임 추출
       String nickname = userService.findNicknameByLoginId(jwtLoginId);
       LocalDate localDate = turtleData.getLocalDate();
-      logger.info("거북목 회원 기록 저장 사용자 아이디 : {}", jwtLoginId);
+      log.info("거북목 회원 기록 저장 사용자 아이디 : {}", jwtLoginId);
 
       try {
-        TurtleEntity turtle =
-            turtleService.saveRecord(jwtLoginId, nickname, score, localDate); // 사용자 닉네임과 점수를 전달
+        ResponseTurtleDTO turtle =
+            turtleService.saveTokneRecord(
+                jwtLoginId, nickname, score, localDate); // 사용자 닉네임과 점수를 전달
 
         return ResponseEntity.ok(turtle);
       } catch (RuntimeException ex) {
@@ -138,9 +136,9 @@ public class TurtleController {
       // 토큰의 정보 중에서 로그인 아이디 추출
       String jwtLoginId = claims.getId();
 
-      logger.info("거북목 기록 조회, 사용자 아이디: {}", jwtLoginId);
+      log.info("거북목 기록 조회, 사용자 아이디: {}", jwtLoginId);
       // 조회(로그인 아이디로)
-      List<TokenTurtleDTO> records = turtleService.getTurtleRecordsByLoginId(jwtLoginId);
+      List<ResponseTurtleDTO> records = turtleService.getTurtleRecordsByLoginId(jwtLoginId);
       return ResponseEntity.ok(records);
     } catch (RuntimeException e) {
       log.error(
