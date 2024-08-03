@@ -18,5 +18,5 @@ public class ChallengeSummaryDTO {
   private LocalDate startDate;
   private LocalDate endDate;
   private String frequency;
-  private String status; // 진행 전, 즉 상태 : 0으로
+  private int status; // 진행 전, 즉 상태 : 0으로
 }

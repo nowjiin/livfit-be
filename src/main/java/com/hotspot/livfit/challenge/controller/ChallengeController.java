@@ -56,8 +56,7 @@ public class ChallengeController {
     return ResponseEntity.ok(userChallenges);
   }
 
-  // 챌린지 상태 업데이트 (성공/실패 여부)
-  @Operation(summary = "챌린지 상태 업데이트", description = "사용자의 챌린지 상태를 업데이트 (성공/실패 여부)")
+  @Operation(summary = "챌린지 상태 업데이트", description = "사용자의 챌린지 상태를 업데이트 (진행 중 -> 완료)")
   @PutMapping("/update-status")
   public ResponseEntity<?> updateChallengeStatus(
       @RequestHeader("Authorization") String bearerToken,
@@ -67,7 +66,7 @@ public class ChallengeController {
       Claims claims = jwtUtil.getAllClaimsFromToken(token);
       String loginId = claims.getId();
 
-      boolean updated = challengeService.updateChallengeStatus(loginId, dto);
+      boolean updated = challengeService.updateChallengeStatus(loginId, dto.getChallengeId());
       if (updated) {
         return ResponseEntity.ok("Challenge status updated successfully.");
       } else {

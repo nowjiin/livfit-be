@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hotspot.livfit.challenge.dto.*;
 import com.hotspot.livfit.challenge.entity.*;
 import com.hotspot.livfit.challenge.repository.*;
+import com.hotspot.livfit.point.service.PointService;
 import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
 
@@ -26,6 +27,7 @@ public class ChallengeService {
   private final ChallengeRepository challengeRepository;
   private final UserChallengeStatusRepository userChallengeStatusRepository;
   private final UserRepository userRepository;
+  private final PointService pointService;
 
   // 모든 챌린지 조회
   @Transactional(readOnly = true)
@@ -82,31 +84,12 @@ public class ChallengeService {
               status.getChallenge().getStartDate(),
               status.getChallenge().getEndDate(),
               status.getChallenge().getFrequency(),
-              status.getStatus() // 상태 정보 0, 1, 2, 3 중
+              status.getStatus() // 상태 정보 0, 1, 2 중
               );
       responseDTOList.add(dto);
     }
 
     return responseDTOList;
-  }
-
-  // 챌린지 상태 업데이트 (성공/실패 여부 업데이트)
-  @Transactional
-  public boolean updateChallengeStatus(String loginId, UserChallengeUpdateRequestDTO dto) {
-    // 사용자의 특정 챌린지 상태를 조회
-    Optional<UserChallengeStatus> statusOpt =
-        userChallengeStatusRepository.findByUser_LoginIdAndChallenge_Id(
-            loginId, dto.getChallengeId());
-
-    // 챌린지 상태가 존재하는 경우 업데이트
-    if (statusOpt.isPresent()) {
-      UserChallengeStatus status = statusOpt.get();
-      status.setStatus(dto.getStatus()); // 상태 업데이트
-      userChallengeStatusRepository.save(status); // 상태 저장
-      return true; // 업데이트 성공
-    } else {
-      return false; // 상태가 존재하지 않음
-    }
   }
 
   // 챌린지 참여 서비스 로직
@@ -138,6 +121,31 @@ public class ChallengeService {
 
     userChallengeStatusRepository.save(newStatus);
     return "Challenge participation successful.";
+  }
+
+  // 챌린지 상태 업데이트 (진행 전 -> 진행 중 -> 완료)
+  @Transactional
+  public boolean updateChallengeStatus(String loginId, Long challengeId) {
+    Optional<UserChallengeStatus> statusOpt =
+        userChallengeStatusRepository.findByUser_LoginIdAndChallenge_Id(loginId, challengeId);
+
+    if (statusOpt.isPresent()) {
+      UserChallengeStatus status = statusOpt.get();
+      int currentStatus = status.getStatus();
+      if (currentStatus == 0) { // 진행 전 상태 -> 진행 중
+        status.setStatus(1);
+        userChallengeStatusRepository.save(status);
+        return true;
+      } else if (currentStatus == 1) { // 진행 중 상태 -> 완료
+        status.setStatus(2);
+        userChallengeStatusRepository.save(status);
+        pointService.rewardPointsForChallengeCompletion(loginId, 300); // 300 포인트 지급
+        return true;
+      } else if (currentStatus == 2) { // 이미 완료된 경우
+        return false;
+      }
+    }
+    return false; // 챌린지 상태가 없거나 이미 완료된 경우
   }
 
   // 참여중인 챌린지 서비스 로직

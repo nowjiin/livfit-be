@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import com.hotspot.livfit.badge.dto.MainBadgeRequestDTO;
 import com.hotspot.livfit.badge.service.UserBadgeService;
 import com.hotspot.livfit.challenge.dto.UserChallengeResponseDTO;
-import com.hotspot.livfit.mypage.dto.NicknameUpdateRequestDTO;
 import com.hotspot.livfit.mypage.service.MyPageService;
 import com.hotspot.livfit.user.util.JwtUtil;
 
@@ -81,30 +80,6 @@ public class MyPageController {
       log.error(
           "Error during fetching main badge in controller /api/mypage/badges/main: {}",
           e.getMessage());
-      return ResponseEntity.badRequest().body(e.getMessage());
-    }
-  }
-
-  // 닉네임 업데이트
-  @Operation(summary = "닉네임 변경", description = "사용자의 닉네임을 변경")
-  @PutMapping("/nickname")
-  public ResponseEntity<?> updateNickname(
-      @RequestHeader("Authorization") String bearerToken,
-      @RequestBody NicknameUpdateRequestDTO request) {
-    try {
-      String token = bearerToken.substring(7);
-      Claims claims = jwtUtil.getAllClaimsFromToken(token);
-      String loginId = claims.getId();
-
-      // 리퀘스트에서 새로운 닉네임 가져오기
-      String newNickname = request.getNickname();
-
-      // 닉네임 업데이트
-      myPageService.updateNickname(loginId, newNickname);
-      return ResponseEntity.ok("Nickname updated successfully");
-    } catch (RuntimeException e) {
-      log.error(
-          "Error during updating nickname in controller /api/mypage/nickname: {}", e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }

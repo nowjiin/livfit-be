@@ -111,4 +111,29 @@ public class PointService {
 
     pointHistoryRepository.save(pointHistory);
   }
+
+  @Transactional
+  public void rewardPointsForChallengeCompletion(String loginId, int points) {
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    // 사용자의 모든 포인트 기록을 조회하여 누적 포인트 계산
+    List<PointHistory> pointHistories = pointHistoryRepository.findByUser_LoginId(loginId);
+    int currentTotalPoints = pointHistories.stream().mapToInt(PointHistory::getPoints).sum();
+
+    // 새로운 포인트 기록 추가
+    PointHistory pointHistory = new PointHistory();
+    pointHistory.setUser(user);
+    pointHistory.setPoints(points);
+    pointHistory.setTotalPoints(currentTotalPoints + points);
+    pointHistory.setType("EARN");
+    pointHistory.setTitle("챌린지 완료");
+    pointHistory.setDescription("챌린지 완료 축하 300p 지급");
+    pointHistory.setEventTime(LocalDate.now());
+
+    // 포인트 기록 저장
+    pointHistoryRepository.save(pointHistory);
+  }
 }

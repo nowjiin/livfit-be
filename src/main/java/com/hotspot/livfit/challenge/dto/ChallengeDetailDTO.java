@@ -20,5 +20,5 @@ public class ChallengeDetailDTO {
   private int difficulty;
   private String reward;
   private String certificate;
-  private String status; // 상태:0 (진행 전) 기본 설정
+  private int status; // 상태:0 (진행 전) 기본 설정
 }
