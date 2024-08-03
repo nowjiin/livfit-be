@@ -91,4 +91,24 @@ public class PointService {
     }
     return historyDTOs;
   }
+
+  // 회원가입 환영 포인트 지급
+  @Transactional
+  public void assignWelcomeBonus(String loginId) {
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found with login ID: " + loginId));
+
+    PointHistory pointHistory = new PointHistory();
+    pointHistory.setUser(user);
+    pointHistory.setPoints(1000);
+    pointHistory.setTotalPoints(1000);
+    pointHistory.setType("EARN");
+    pointHistory.setTitle("회원가입 1000p");
+    pointHistory.setDescription("LIVFIT에 오신 것을 환영합니다!");
+    pointHistory.setEventTime(LocalDate.now());
+
+    pointHistoryRepository.save(pointHistory);
+  }
 }
