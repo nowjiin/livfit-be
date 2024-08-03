@@ -41,4 +41,7 @@ public class TodayExercise {
   private LocalDate expirationDate;
 
   // 직접 DB에서 데이터 넣어줄거라 생성시간 필요없음
+
+  @Column(name = "exercise")
+  private String exercise;
 }

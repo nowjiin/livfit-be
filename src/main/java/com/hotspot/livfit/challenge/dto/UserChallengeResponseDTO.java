@@ -18,5 +18,5 @@ public class UserChallengeResponseDTO {
   private LocalDate startDate;
   private LocalDate endDate;
   private String frequency;
-  private int status; // 0: 진행 전, 1: 진행중, 2: 성공, 3: 실패
+  private int status; // 0: 진행 전, 1: 진행중, 2: 완료
 }

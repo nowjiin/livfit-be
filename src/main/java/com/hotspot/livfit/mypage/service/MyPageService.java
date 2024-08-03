@@ -15,7 +15,6 @@ import com.hotspot.livfit.challenge.entity.UserChallengeStatus;
 import com.hotspot.livfit.challenge.repository.UserChallengeStatusRepository;
 import com.hotspot.livfit.point.entity.PointHistory;
 import com.hotspot.livfit.point.repository.PointHistoryRepository;
-import com.hotspot.livfit.user.entity.User;
 import com.hotspot.livfit.user.repository.UserRepository;
 
 @Service
@@ -51,17 +50,6 @@ public class MyPageService {
         .map(UserBadge::getBadge)
         .map(badge -> badge.getId())
         .orElse(null);
-  }
-
-  // 닉네임 업데이트
-  @Transactional
-  public void updateNickname(String loginId, String newNickname) {
-    User user =
-        userRepository
-            .findByLoginId(loginId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-    user.setNickname(newNickname);
-    userRepository.save(user);
   }
 
   // 사용자의 챌린지 기록 조회 (참여 중, 성공, 실패 포함)

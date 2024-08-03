@@ -57,5 +57,5 @@ public class ChallengeEntity {
 
   // 챌린지 상태 기본
   @Column(name = "status")
-  private String status; // 0: 진행 전, 1: 진행중, 2: 성공, 3: 실패
+  private int status; // 0: 진행 전, 1: 진행중, 2: 완료
 }

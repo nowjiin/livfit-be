@@ -35,7 +35,7 @@ public class UserChallengeStatus {
   @Column(name = "started_at", nullable = false)
   private LocalDate startedAt;
 
-  // 챌린지 상태 0: 진행 전, 1: 진행중, 2: 성공, 3: 실패
+  // 챌린지 상태 0: 진행 전, 1: 진행중, 2: 완료
   @Column(name = "status", nullable = false)
   private int status;
 
