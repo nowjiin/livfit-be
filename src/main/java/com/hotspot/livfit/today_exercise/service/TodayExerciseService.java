@@ -40,6 +40,7 @@ public class TodayExerciseService {
     return new TodayExerciseDTO(
         exercise.getId(),
         exercise.getExercise_name(),
+        exercise.getExercise(),
         exercise.getCount(),
         exercise.getTimer_sec());
   }
@@ -54,6 +55,7 @@ public class TodayExerciseService {
     return new TodayExerciseDTO(
         exercise.getId(),
         exercise.getExercise_name(),
+        exercise.getExercise(),
         exercise.getCount(),
         exercise.getTimer_sec());
   }
