@@ -40,7 +40,8 @@ public class ChallengeService {
                     challenge.getDescription(),
                     challenge.getStartDate(),
                     challenge.getEndDate(),
-                    challenge.getFrequency()))
+                    challenge.getFrequency(),
+                    challenge.getStatus()))
         .collect(Collectors.toList());
   }
 
@@ -59,7 +60,9 @@ public class ChallengeService {
                     challenge.getEndDate(),
                     challenge.getFrequency(),
                     challenge.getDifficulty(),
-                    challenge.getReward()));
+                    challenge.getReward(),
+                    challenge.getCertificate(),
+                    challenge.getStatus()));
   }
 
   // 특정 사용자의 챌린지 기록 조회
@@ -75,7 +78,11 @@ public class ChallengeService {
               status.getId(),
               status.getUser().getLoginId(),
               status.getChallenge().getTitle(),
-              status.getStatus() // 상태 정보 0, 1, 2 중
+              status.getChallenge().getDescription(),
+              status.getChallenge().getStartDate(),
+              status.getChallenge().getEndDate(),
+              status.getChallenge().getFrequency(),
+              status.getStatus() // 상태 정보 0, 1, 2, 3 중
               );
       responseDTOList.add(dto);
     }
@@ -125,7 +132,7 @@ public class ChallengeService {
     UserChallengeStatus newStatus = new UserChallengeStatus();
     newStatus.setUser(user);
     newStatus.setChallenge(challenge);
-    newStatus.setStatus(0); // 상태를 "진행중"으로 설정 (0 은 진행중 의미)
+    newStatus.setStatus(1); // 상태를 "진행중"으로 설정 (0 은 진행 전을 의미)
     newStatus.setStartedAt(LocalDate.now());
     newStatus.setJoinedAt(LocalDate.now()); // 현재 시간으로 설정
 
@@ -137,7 +144,7 @@ public class ChallengeService {
   @Transactional(readOnly = true)
   public List<UserChallengeResponseDTO> getInProgressChallenges(String loginId) {
     List<UserChallengeStatus> inProgressStatuses =
-        userChallengeStatusRepository.findByUser_LoginIdAndStatus(loginId, 0); // 상태가 0인 것들
+        userChallengeStatusRepository.findByUser_LoginIdAndStatus(loginId, 1); // 상태가 1인 것들
     List<UserChallengeResponseDTO> responseDTOList = new ArrayList<>();
 
     for (UserChallengeStatus status : inProgressStatuses) {
@@ -145,6 +152,10 @@ public class ChallengeService {
       dto.setId(status.getId());
       dto.setLoginId(status.getUser().getLoginId());
       dto.setChallengeTitle(status.getChallenge().getTitle());
+      dto.setDescription(status.getChallenge().getDescription());
+      dto.setStartDate(status.getChallenge().getStartDate());
+      dto.setEndDate(status.getChallenge().getEndDate());
+      dto.setFrequency(status.getChallenge().getFrequency());
       dto.setStatus(status.getStatus());
 
       responseDTOList.add(dto);

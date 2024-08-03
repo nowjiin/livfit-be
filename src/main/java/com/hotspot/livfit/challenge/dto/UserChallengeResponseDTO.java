@@ -1,5 +1,7 @@
 package com.hotspot.livfit.challenge.dto;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +14,9 @@ public class UserChallengeResponseDTO {
   private Long id;
   private String loginId;
   private String challengeTitle;
-  private int status; // 0: 진행중, 1: 성공, 2: 실패 **
+  private String description;
+  private LocalDate startDate;
+  private LocalDate endDate;
+  private String frequency;
+  private int status; // 0: 진행 전, 1: 진행중, 2: 성공, 3: 실패
 }
