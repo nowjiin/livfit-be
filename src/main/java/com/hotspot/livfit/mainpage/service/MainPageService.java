@@ -81,7 +81,12 @@ public class MainPageService {
                     status.getId(),
                     status.getUser().getLoginId(),
                     status.getChallenge().getTitle(),
-                    status.getStatus()))
+                    status.getChallenge().getDescription(),
+                    status.getChallenge().getStartDate(),
+                    status.getChallenge().getEndDate(),
+                    status.getChallenge().getFrequency(),
+                    status.getStatus() // 상태 정보 0, 1, 2, 3 중
+                    ))
         .collect(Collectors.toList());
   }
 }

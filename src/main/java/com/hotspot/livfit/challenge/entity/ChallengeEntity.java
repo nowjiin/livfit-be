@@ -50,4 +50,12 @@ public class ChallengeEntity {
   // 해당 챌린지에 참여한 사용자들의 상태 정보
   @OneToMany(mappedBy = "challenge")
   private Set<UserChallengeStatus> userStatuses;
+
+  // 챌린지 인증하기 (상세페이지에 필요)
+  @Column(name = "certificate")
+  private String certificate;
+
+  // 챌린지 상태 기본
+  @Column(name = "status")
+  private String status; // 0: 진행 전, 1: 진행중, 2: 성공, 3: 실패
 }
