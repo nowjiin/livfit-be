@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.hotspot.livfit.badge.service.UserBadgeService;
 import com.hotspot.livfit.point.service.PointService;
 import com.hotspot.livfit.user.dto.UserRegistrationResponseDTO;
 import com.hotspot.livfit.user.entity.User;
@@ -28,6 +29,7 @@ public class UserService implements UserDetailsService {
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
   private final PointService pointService;
+  private final UserBadgeService userBadgeService;
 
   // 회원가입 비지니스 로직
   // DTO 생성해서 코드 수정
@@ -52,6 +54,9 @@ public class UserService implements UserDetailsService {
 
     // 기본 포인트 지급
     pointService.assignWelcomeBonus(savedUser.getLoginId());
+
+    // 'egg' 뱃지 지급
+    userBadgeService.assignWelcomeBadge(savedUser.getLoginId(), "egg");
 
     // 응답 DTO 생성 및 반환
     return new UserRegistrationResponseDTO(

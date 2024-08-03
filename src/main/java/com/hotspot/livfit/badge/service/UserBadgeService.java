@@ -133,4 +133,27 @@ public class UserBadgeService {
     }
     return userBadges;
   }
+
+  // 회원가입 시 환영 뱃지 자동 지급
+  @Transactional
+  public void assignWelcomeBadge(String loginId, String badgeId) {
+    User user =
+        userRepository
+            .findByLoginId(loginId)
+            .orElseThrow(() -> new RuntimeException("User not found with login ID: " + loginId));
+
+    Badge badge =
+        badgeRepository
+            .findById(badgeId)
+            .orElseThrow(() -> new RuntimeException("Badge not found with ID: " + badgeId));
+
+    UserBadge userBadge = new UserBadge();
+    userBadge.setUser(user);
+    userBadge.setBadge(badge);
+    userBadge.setEarnedTime(LocalDateTime.now());
+    userBadge.setMainBadge(true);
+    userBadgeRepository.save(userBadge);
+
+    log.info("회원가입 축하 환영 뱃지 지급됨. User {}, {} badge", loginId, badgeId);
+  }
 }
