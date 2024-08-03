@@ -83,7 +83,7 @@ public class ExerciseService {
     return dto;
   }
 
-  //런지 운동 기록 그래프 값 가져오기
+  // 런지 운동 기록 그래프 값 가져오기
   public List<LungeGraphDTO> getLungeGraph(String loginId) {
     List<LungeEntity> lungeEntities = lungeRepository.findAllByOrderByCreatedAtDesc(loginId);
     if (lungeEntities.isEmpty()) {
@@ -161,7 +161,7 @@ public class ExerciseService {
     return dto;
   }
 
-  //푸쉬업 운동 기록 그래프 값 가져오기
+  // 푸쉬업 운동 기록 그래프 값 가져오기
   public List<PushupGraphDTO> getPushupGraph(String loginId) {
     List<PushupEntity> pushupEntities = pushupRepository.findAllByOrderByCreatedAtDesc(loginId);
     if (pushupEntities.isEmpty()) {
@@ -238,7 +238,7 @@ public class ExerciseService {
     dto.setCreated_at(entity.getCreated_at());
     return dto;
   }
-  //스쿼트 운동 기록 그래프 값 가져오기
+  // 스쿼트 운동 기록 그래프 값 가져오기
   public List<SquatGraphDTO> getSquatGraph(String loginId) {
     List<SquatEntity> squatEntities = squatRepository.findAllByOrderByCreatedAtDesc(loginId);
     if (squatEntities.isEmpty()) {

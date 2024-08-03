@@ -56,7 +56,7 @@ public class JwtUtil {
               .build()
               .parseClaimsJws(token)
               .getBody();
-      String extractedUsername = claims.getSubject();
+      String extractedUsername = claims.getId();
 
       if (!extractedUsername.equals(username)) {
         log.info("JWT 토큰의 사용자 이름이 일치하지 않습니다.");
@@ -66,7 +66,8 @@ public class JwtUtil {
         log.info("만료된 JWT 토큰입니다.");
         return false;
       }
-      log.info("JWT validation 성공");
+      // 너무 자주나오고 길어서 주석처리함
+      // log.info("JWT validation 성공");
       return true;
     } catch (SecurityException | MalformedJwtException e) {
       log.info("잘못된 JWT 서명입니다.");
@@ -97,7 +98,7 @@ public class JwtUtil {
 
   // 토큰에서 사용자 이름 추출
   public String extractUsername(String token) {
-    return getAllClaimsFromToken(token).getSubject();
+    return getAllClaimsFromToken(token).getId();
   }
 
   // 토큰에서 만료 시간 추출
