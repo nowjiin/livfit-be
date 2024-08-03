@@ -35,7 +35,12 @@ public class ChallengeService {
         .map(
             challenge ->
                 new ChallengeSummaryDTO(
-                    challenge.getId(), challenge.getTitle(), challenge.getDescription(), "진행중"))
+                    challenge.getId(),
+                    challenge.getTitle(),
+                    challenge.getDescription(),
+                    challenge.getStartDate(),
+                    challenge.getEndDate(),
+                    challenge.getFrequency()))
         .collect(Collectors.toList());
   }
 
