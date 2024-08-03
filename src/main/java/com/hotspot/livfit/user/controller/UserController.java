@@ -1,15 +1,14 @@
 package com.hotspot.livfit.user.controller;
 
+import java.util.Collections;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.hotspot.livfit.user.dto.*;
 import com.hotspot.livfit.user.service.UserService;
@@ -52,6 +51,25 @@ public class UserController {
     } catch (RuntimeException e) {
       // 예외 발생 시 로그 출력 디버깅용
       log.error("Error during user registration in controller /api/register: {}", e.getMessage());
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @Operation(summary = "회원가입 중복된 아이디 확인", description = "회원가입 중복된 아이디 확인")
+  @GetMapping("/check-id")
+  public ResponseEntity<?> checkRegisterLoginId(@RequestParam String loginId) {
+    try {
+      boolean isAvailable = userService.isLoginIdAvailable(loginId);
+
+      if (isAvailable) {
+        return ResponseEntity.ok(Collections.singletonMap("available", true));
+      } else {
+        log.warn("회원가입 실패: 중복된 Login ID - {}", loginId);
+        return ResponseEntity.status(HttpServletResponse.SC_CONFLICT)
+            .body(Collections.singletonMap("available", false));
+      }
+    } catch (RuntimeException e) {
+      log.error("Error during ID check in controller /api/check-id: {}", e.getMessage());
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
