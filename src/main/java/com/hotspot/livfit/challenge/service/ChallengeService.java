@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,22 +28,35 @@ public class ChallengeService {
   private final UserRepository userRepository;
   private final PointService pointService;
 
-  // 모든 챌린지 조회
+  // 모든 챌린지 조회 -> 로그인에 따라 상태 반영
   @Transactional(readOnly = true)
-  public List<ChallengeSummaryDTO> findAllChallenges() {
+  public List<ChallengeSummaryDTO> findAllChallengesWithUserStatus(String loginId) {
     List<ChallengeEntity> challenges = challengeRepository.findAll();
-    return challenges.stream()
-        .map(
-            challenge ->
-                new ChallengeSummaryDTO(
-                    challenge.getId(),
-                    challenge.getTitle(),
-                    challenge.getDescription(),
-                    challenge.getStartDate(),
-                    challenge.getEndDate(),
-                    challenge.getFrequency(),
-                    challenge.getStatus()))
-        .collect(Collectors.toList());
+    List<ChallengeSummaryDTO> challengeDTOs = new ArrayList<>();
+
+    for (ChallengeEntity challenge : challenges) {
+      ChallengeSummaryDTO dto =
+          new ChallengeSummaryDTO(
+              challenge.getId(),
+              challenge.getTitle(),
+              challenge.getDescription(),
+              challenge.getStartDate(),
+              challenge.getEndDate(),
+              challenge.getFrequency(),
+              challenge.getStatus());
+      if (loginId != null) {
+        Optional<UserChallengeStatus> userStatus =
+            userChallengeStatusRepository.findByUser_LoginIdAndChallenge_Id(
+                loginId, challenge.getId());
+
+        if (userStatus.isPresent()) {
+          dto.setStatus(userStatus.get().getStatus());
+        }
+      }
+      challengeDTOs.add(dto);
+    }
+
+    return challengeDTOs;
   }
 
   // ID로 특정 챌린지 조회

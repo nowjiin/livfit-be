@@ -29,9 +29,29 @@ public class ChallengeController {
   // 모든 챌린지 조회
   @Operation(summary = "전체 챌린지 조회", description = "모든 챌린지 목록 조회")
   @GetMapping("/list")
-  public ResponseEntity<List<ChallengeSummaryDTO>> getAllChallenges() {
-    List<ChallengeSummaryDTO> challengeList = challengeService.findAllChallenges();
-    return ResponseEntity.ok(challengeList);
+  public ResponseEntity<List<ChallengeSummaryDTO>> getAllChallenges(
+      @RequestHeader(value = "Authorization", required = false) String bearerToken) {
+    try {
+      String loginId = null;
+
+      if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        try {
+          String token = bearerToken.substring(7);
+          Claims claims = jwtUtil.getAllClaimsFromToken(token);
+          loginId = claims.getId(); // 토큰에서 로그인 ID를 추출
+        } catch (Exception e) {
+          log.error("Invalid token: {}", e.getMessage());
+          // 토큰이 유효하지 않으면 로그인 정보 없이 처리
+        }
+      }
+
+      List<ChallengeSummaryDTO> challengeList =
+          challengeService.findAllChallengesWithUserStatus(loginId);
+      return ResponseEntity.ok(challengeList);
+    } catch (Exception e) {
+      log.error("Error during fetching all challenges: {}", e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
   }
 
   // ID로 특정 챌린지 조회
