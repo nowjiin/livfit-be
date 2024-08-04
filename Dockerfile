@@ -1,5 +1,9 @@
-#OpenJDK 17 기반 이미지 사용
+# OpenJDK 17 기반 이미지 사용
 FROM openjdk:17-jdk-slim
+
+# 시간대 설정
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 애플리케이션 JAR 파일 위치 설정
 ARG JAR_FILE=build/libs/*.jar
@@ -11,4 +15,4 @@ WORKDIR /app
 COPY ${JAR_FILE} app.jar
 
 # 컨테이너가 시작될 때 실행할 명령어 설정
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]
