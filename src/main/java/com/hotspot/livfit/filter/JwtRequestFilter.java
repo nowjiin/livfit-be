@@ -95,8 +95,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
       }
     } catch (JwtException e) {
       // JWT 파싱 또는 검증 오류
-      // 로그 레벨 변경
-      log.warn("JwtException");
       response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token validate오류");
       return;
     } catch (Exception e) {
