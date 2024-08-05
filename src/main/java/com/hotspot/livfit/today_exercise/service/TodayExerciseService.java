@@ -102,6 +102,12 @@ public class TodayExerciseService {
   public int getUserExerciseStatus(String loginId, LocalDate date) {
     LocalDate today = LocalDate.now();
 
+    // 오늘 날짜에 대한 처리: 항상 시작 전 상태로 반환
+    if (date.isEqual(today)) {
+      log.info("Date {} is today. Status: 0 (not started)", date);
+      return 0; // 시작 전
+    }
+
     // 미래 날짜에 대한 처리: 아직 시작하지 않은 상태
     if (date.isAfter(today)) {
       log.info("Date {} is after today. Status: 0 (not started)", date);
@@ -115,6 +121,8 @@ public class TodayExerciseService {
       return exerciseUserOpt.get().getStatus();
     } else {
       // 과거 기록이 없는 경우 실패로 처리
+      log.info(
+          "No exercise status found for user: {} on date: {}. Status: 2 (failed)", loginId, date);
       return 2; // 실패
     }
   }
