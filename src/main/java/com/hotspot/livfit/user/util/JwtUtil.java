@@ -26,7 +26,7 @@ public class JwtUtil {
 
   // Access Token 발급 부분
   public String createAccessToken(String userId, String userName) {
-    Date expireTime = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
+    Date expireTime = Date.from(Instant.now().plus(23, ChronoUnit.HOURS));
     Key key = getSigningKey();
     return Jwts.builder()
         .setId(userId)
