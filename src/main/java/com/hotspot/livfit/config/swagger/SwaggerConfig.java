@@ -23,13 +23,8 @@ public class SwaggerConfig {
     localServer.setUrl(contextPath);
     localServer.setDescription("Local Server");
 
-    Server prodServer = new Server();
-    prodServer.setUrl("https://nowjin.tplinkdns.com");
-    prodServer.setDescription("Production Server");
-
     return new OpenAPI()
         .addServersItem(localServer)
-        .addServersItem(prodServer)
         .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
         .components(
             new Components()
